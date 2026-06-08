@@ -629,18 +629,18 @@ Identifie ce que tu vois (plante, animal, objet, véhicule, nourriture, minéral
 
 {"emoji":"emoji","categorie":"type précis","nom":"nom commun","nom_latin":"nom sci. ou marque/modèle","statut":[{"label":"info clé 1","couleur":"vert"},{"label":"info clé 2","couleur":"amber"}],"description":"3-4 phrases sur ce que c'est","analyse":"3-4 phrases sur ce qu'on voit sur CETTE photo précisément","conseils":["conseil pratique 1","conseil pratique 2","conseil pratique 3","conseil pratique 4"],"le_saviez_vous":"fait surprenant et rare","recette_ou_usage":"adapté: recette si comestible, entretien si objet, comportement si animal, valeur/histoire si véhicule ou œuvre"}`;
 
-  try {
-    document.querySelector('.loading-sub').textContent = "Analyse en cours...";
+  const MODELS = [
+    "meta-llama/llama-4-maverick:free",
+    "qwen/qwen2.5-vl-32b-instruct:free",
+    "mistralai/mistral-small-3.1-24b-instruct:free"
+  ];
+
+  async function tryModel(model) {
     const resp = await fetch("https://photoencyclopia-proxy.widehem-olivier.workers.dev", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // no auth needed - proxy handles it
-        
-        
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "meta-llama/llama-4-scout:free",
+        model,
         messages: [{ role: "user", content: [
           { type: "text", text: prompt },
           { type: "image_url", image_url: { url: `data:${currentMime};base64,${currentImageBase64}` } }
@@ -654,14 +654,25 @@ Identifie ce que tu vois (plante, animal, objet, véhicule, nourriture, minéral
       throw new Error(err.error?.message || "Erreur " + resp.status);
     }
     const data = await resp.json();
-    let raw = data.choices?.[0]?.message?.content || "";
+    return data.choices?.[0]?.message?.content || "";
+  }
+
+  try {
+    let raw = ""; let lastErr = "";
+    for (const model of MODELS) {
+      try {
+        document.querySelector('.loading-sub').textContent = "Analyse en cours...";
+        raw = await tryModel(model);
+        if (raw) break;
+      } catch(e) { lastErr = e.message; }
+    }
+    if (!raw) throw new Error(lastErr || "Aucun modèle disponible, réessaie.");
     raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
-    // Extract JSON object if wrapped in text
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (jsonMatch) raw = jsonMatch[0];
     let fiche;
     try { fiche = JSON.parse(raw); }
-    catch { throw new Error("Reponse inattendue. Reessaie avec une photo plus nette."); }
+    catch { throw new Error("Réponse inattendue. Réessaie avec une photo plus nette."); }
     showResult(fiche);
   } catch (err) {
     showError(err.message);
