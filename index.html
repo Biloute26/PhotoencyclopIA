@@ -649,24 +649,18 @@ Retourne UNIQUEMENT ce JSON (sans markdown, sans backticks) :
   "recette_ou_usage": "Si comestible: une recette simple et délicieuse. Si animal: comment l'apprivoiser/soigner. Si objet: comment bien l'utiliser ou l'entretenir. Si plante: utilisation (médicinale, décorative...). Sois précis et pratique."
 }`;
 
-  const MODELS = [
-    'google/gemma-4-31b-it:free',
-    'meta-llama/llama-4-maverick:free',
-    'moonshotai/kimi-vl-a3b-thinking:free',
-    'mistralai/mistral-small-3.1-24b-instruct:free'
-  ];
-
-  async function tryModel(model) {
+  try {
+    document.querySelector('.loading-sub').textContent = "Analyse en cours...";
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://photoencyclopIA.app",
+        "HTTP-Referer": "https://biloute26.github.io/PhotoencyclopIA",
         "X-Title": "PhotoencyclopIA"
       },
       body: JSON.stringify({
-        model,
+        model: "openrouter/free",
         messages: [{ role: "user", content: [
           { type: "text", text: prompt },
           { type: "image_url", image_url: { url: `data:${currentMime};base64,${currentImageBase64}` } }
@@ -680,19 +674,7 @@ Retourne UNIQUEMENT ce JSON (sans markdown, sans backticks) :
       throw new Error(err.error?.message || "Erreur " + resp.status);
     }
     const data = await resp.json();
-    return data.choices?.[0]?.message?.content || "";
-  }
-
-  try {
-    let raw = ""; let lastErr = "";
-    for (const model of MODELS) {
-      try {
-        document.querySelector('.loading-sub').textContent = "Essai avec " + model.split('/')[1].split(':')[0] + "...";
-        raw = await tryModel(model);
-        if (raw) break;
-      } catch(e) { lastErr = e.message; }
-    }
-    if (!raw) throw new Error(lastErr || "Aucun modele disponible. Reessaie dans quelques instants.");
+    let raw = data.choices?.[0]?.message?.content || "";
     raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
     let fiche;
     try { fiche = JSON.parse(raw); }
