@@ -43,7 +43,10 @@ footer{text-align:center;padding:20px;font-size:11px;color:rgba(255,255,255,0.2)
 <header><div class="logo">Photo<b>encyclop</b>IA</div></header>
 <div class="main">
   <img id="preview">
-  <input type="file" id="fileinput" accept="image/*">
+  <label for="fileinput" id="pickbtn" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:40px 20px;background:#1a3a1d;border:2px dashed rgba(76,175,82,0.4);border-radius:20px;color:#4caf52;font-size:16px;font-weight:500;cursor:pointer;margin-bottom:14px;font-family:'DM Sans',sans-serif;text-align:center;">
+    📷 Choisir ou prendre une photo
+  </label>
+  <input type="file" id="fileinput" accept="image/*" style="position:fixed;top:-9999px;left:-9999px;opacity:0;width:1px;height:1px;">
   <button id="analyze">🔍 Analyser cette photo</button>
   <button id="reset">📷 Nouvelle photo</button>
   <p id="status">Choisis ou prends une photo ci-dessus</p>
@@ -67,6 +70,7 @@ document.getElementById('fileinput').onchange=function(){
     document.getElementById('preview').src=ev.target.result;
     document.getElementById('preview').style.display='block';
     document.getElementById('analyze').style.display='block';
+    document.getElementById('pickbtn').style.display='none';
     document.getElementById('status').textContent='Photo prête — appuie sur Analyser !';
     document.getElementById('result').style.display='none';
     document.getElementById('errbox').style.display='none';
@@ -149,6 +153,7 @@ document.getElementById('reset').onclick=function(){
   document.getElementById('preview').style.display='none';
   document.getElementById('analyze').style.display='none';
   document.getElementById('reset').style.display='none';
+  document.getElementById('pickbtn').style.display='flex';
   document.getElementById('result').style.display='none';
   document.getElementById('errbox').style.display='none';
   document.getElementById('status').textContent='Choisis ou prends une photo ci-dessus';
