@@ -623,33 +623,11 @@ async function analyze() {
   loadingZone.classList.add('active');
   analyzeBtn.disabled = true;
 
-  const prompt = `Tu es une encyclopédie visuelle universelle et exhaustive. Tu peux identifier et analyser ABSOLUMENT TOUT ce qui existe : plantes, légumes, fruits, fleurs, champignons, arbres, animaux (mammifères, oiseaux, reptiles, insectes, poissons, araignées...), minéraux, pierres précieuses, roches, fossiles, objets du quotidien, outils, appareils électroniques, véhicules (voitures, motos, avions, bateaux), monuments et bâtiments, œuvres d'art et peintures, sculptures, meubles, vêtements et accessoires de mode, bijoux, montres, plats cuisinés et aliments transformés, boissons, médicaments et plantes médicinales, produits chimiques, matériaux de construction, instruments de musique, jouets, livres, marques et logos, personnages historiques ou fictifs, paysages et lieux géographiques, phénomènes naturels, cartes et documents, billets de banque et monnaies, timbres, équipements sportifs, armes, explosifs (identification seulement), œuvres d'art numériques, QR codes, symboles et pictogrammes, et tout ce qui peut apparaître sur une photo.
+  const prompt = `Analyse cette image. Retourne UNIQUEMENT un JSON valide, sans texte avant ou après, sans backticks.
 
-Analyse cette image avec une précision maximale. Adapte entièrement ta réponse à la catégorie détectée.
+Identifie ce que tu vois (plante, animal, objet, véhicule, nourriture, minéral, monument, œuvre d'art, etc.) et adapte ta réponse.
 
-Retourne UNIQUEMENT ce JSON (sans markdown, sans backticks) :
-{
-  "emoji": "emoji le plus représentatif possible",
-  "categorie": "catégorie précise (ex: Oiseau de mer, Voiture de sport, Fromage affiné, Pierre précieuse, Tableau impressionniste, Insecte coléoptère...)",
-  "nom": "Nom commun précis",
-  "nom_latin": "Nom scientifique OU marque/modèle/artiste OU référence technique selon la catégorie",
-  "statut": [
-    {"label": "info clé 1 adaptée à la catégorie", "couleur": "vert|amber|rouge"},
-    {"label": "info clé 2 adaptée à la catégorie", "couleur": "vert|amber|rouge"},
-    {"label": "info clé 3 si pertinent", "couleur": "vert|amber|rouge"}
-  ],
-  "description": "Description encyclopédique précise et fascinante, adaptée à la catégorie (4-5 phrases). Pour un animal: comportement, habitat, régime. Pour un objet: fonctionnement, histoire, usage. Pour une plante: cycle de vie, propriétés. Pour un aliment: origine, composition, goût.",
-  "analyse": "Analyse experte de CE QU'ON VOIT PRÉCISÉMENT sur la photo (4-6 phrases). Détaille l'état, l'âge estimé, la qualité, les caractéristiques visibles, l'environnement, les particularités notables.",
-  "conseils": [
-    "Conseil expert 1 très concret et utile",
-    "Conseil expert 2 très concret et utile",
-    "Conseil expert 3 très concret et utile",
-    "Conseil expert 4 très concret et utile",
-    "Conseil expert 5 si pertinent"
-  ],
-  "le_saviez_vous": "Un fait vraiment surprenant, rare ou contre-intuitif sur ce sujet, que peu de gens connaissent",
-  "recette_ou_usage": "Section adaptée à 100% à la catégorie: Si comestible → recette détaillée et délicieuse avec ingrédients et étapes. Si animal → comportement fascinant + comment cohabiter/observer/soigner. Si végétal → usages médicinaux, culinaires, décoratifs détaillés. Si objet/appareil → guide d'utilisation optimale, entretien, astuces pro. Si véhicule → caractéristiques techniques, histoire du modèle, valeur. Si minéral/pierre → propriétés, formation géologique, utilisations. Si œuvre d'art → contexte historique, technique utilisée, symbolisme. Si lieu/monument → histoire, anecdotes, comment le visiter. Si aliment transformé → composition nutritionnelle, comment le cuisiner. Sois TOUJOURS très précis et pratique."
-}`;
+{"emoji":"emoji","categorie":"type précis","nom":"nom commun","nom_latin":"nom sci. ou marque/modèle","statut":[{"label":"info clé 1","couleur":"vert"},{"label":"info clé 2","couleur":"amber"}],"description":"3-4 phrases sur ce que c'est","analyse":"3-4 phrases sur ce qu'on voit sur CETTE photo précisément","conseils":["conseil pratique 1","conseil pratique 2","conseil pratique 3","conseil pratique 4"],"le_saviez_vous":"fait surprenant et rare","recette_ou_usage":"adapté: recette si comestible, entretien si objet, comportement si animal, valeur/histoire si véhicule ou œuvre"}`;
 
   try {
     document.querySelector('.loading-sub').textContent = "Analyse en cours...";
