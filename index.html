@@ -485,7 +485,7 @@
 <main>
 
   <!-- NO API BANNER -->
-  <div class="no-api-banner visible" id="noApiBanner" onclick="openModal()">
+  <div class="no-api-banner" id="noApiBanner" onclick="openModal()">
     ⚠ Configure ta clé API Gemini pour commencer →
   </div>
 
@@ -527,7 +527,7 @@
 
 <script>
 const STORAGE_KEY = 'photoencyclo_api_key';
-let apiKey = localStorage.getItem(STORAGE_KEY) || '';
+let apiKey = 'proxy';
 let currentImageBase64 = '';
 let currentMime = 'image/jpeg';
 
@@ -651,13 +651,13 @@ Retourne UNIQUEMENT ce JSON (sans markdown, sans backticks) :
 
   try {
     document.querySelector('.loading-sub').textContent = "Analyse en cours...";
-    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const resp = await fetch("https://photoencyclopia-proxy.widehem-olivier.workers.dev", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://biloute26.github.io/PhotoencyclopIA",
-        "X-Title": "PhotoencyclopIA"
+        // no auth needed - proxy handles it
+        
+        
       },
       body: JSON.stringify({
         model: "openrouter/free",
