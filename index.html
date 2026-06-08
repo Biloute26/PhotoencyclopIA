@@ -2,104 +2,156 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d1f0f">
 <title>PhotoencyclopIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: sans-serif; background: #0d1f0f; color: #f5f0e8; padding: 16px; max-width: 500px; margin: 0 auto; }
-h1 { font-size: 22px; color: #c8e6c9; margin-bottom: 20px; }
-h1 b { color: #4caf52; }
-#preview { width: 100%; border-radius: 12px; display: none; margin-bottom: 12px; }
-input[type=file] { display: block; width: 100%; padding: 16px; background: #1a3a1d; border: 2px dashed #4caf52; border-radius: 12px; color: #4caf52; font-size: 15px; margin-bottom: 12px; cursor: pointer; }
-#analyze { display: none; width: 100%; padding: 16px; background: #4caf52; border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
-#reset { display: none; width: 100%; padding: 14px; background: #1a3a1d; border: 1px solid #4caf52; border-radius: 12px; color: #4caf52; font-size: 15px; cursor: pointer; margin-bottom: 12px; }
-#status { font-size: 14px; color: #a8c5aa; margin-bottom: 12px; min-height: 20px; }
-#result { display: none; }
-.card { background: #1a3a1d; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
-.card h3 { font-size: 12px; text-transform: uppercase; color: #4caf52; margin-bottom: 8px; letter-spacing: 1px; }
-.card p, .card li { font-size: 14px; line-height: 1.7; }
-.card ul { padding-left: 18px; }
-.name { font-size: 26px; font-weight: bold; margin-bottom: 4px; }
-.cat { font-size: 12px; color: #4caf52; text-transform: uppercase; letter-spacing: 1px; }
-.latin { font-size: 13px; color: #a8c5aa; font-style: italic; margin-bottom: 14px; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0d1f0f;color:#f5f0e8;max-width:480px;margin:0 auto;min-height:100vh}
+header{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Playfair Display',serif;font-size:22px;color:#c8e6c9}
+.logo b{color:#4caf52}
+.main{padding:20px}
+#preview{width:100%;max-height:280px;object-fit:cover;border-radius:18px;display:none;margin-bottom:14px}
+input[type=file]{display:block;width:100%;padding:40px 20px;background:#1a3a1d;border:2px dashed rgba(76,175,82,0.4);border-radius:20px;color:#4caf52;font-size:15px;text-align:center;cursor:pointer;margin-bottom:14px;font-family:'DM Sans',sans-serif}
+#analyze{display:none;width:100%;padding:16px;background:linear-gradient(135deg,#2d6a31,#4caf52);border:none;border-radius:14px;color:white;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:12px;font-family:'DM Sans',sans-serif}
+#reset{display:none;width:100%;padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;color:#a8c5aa;font-size:14px;cursor:pointer;margin-bottom:12px;font-family:'DM Sans',sans-serif}
+#status{font-size:13px;color:#a8c5aa;margin-bottom:14px;min-height:18px;text-align:center}
+.spinner{width:40px;height:40px;border:3px solid rgba(76,175,82,0.2);border-top-color:#4caf52;border-radius:50%;animation:spin 0.8s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+#result{display:none}
+.r-emoji{font-size:48px;margin-bottom:8px}
+.r-cat{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#4caf52;font-weight:600}
+.r-name{font-family:'Playfair Display',serif;font-size:26px;margin:4px 0}
+.r-latin{font-size:13px;color:#a8c5aa;font-style:italic;margin-bottom:16px}
+.card{background:#1a3a1d;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06)}
+.card-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#4caf52;font-weight:600;margin-bottom:10px}
+.card-text{font-size:14px;line-height:1.7}
+.tips{list-style:none}
+.tips li{display:flex;gap:8px;font-size:14px;line-height:1.6;margin-bottom:8px}
+.tip-n{width:20px;height:20px;background:rgba(76,175,82,0.2);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#4caf52;margin-top:2px}
+.recipe{background:linear-gradient(135deg,rgba(232,160,32,0.1),rgba(232,160,32,0.03));border:1px solid rgba(232,160,32,0.2);border-radius:14px;padding:16px;margin-bottom:12px}
+.recipe-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#e8a020;font-weight:600;margin-bottom:10px}
+#errbox{display:none;background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.3);border-radius:14px;padding:16px;text-align:center;color:#ff8a80;font-size:14px;margin-bottom:12px}
+footer{text-align:center;padding:20px;font-size:11px;color:rgba(255,255,255,0.2)}
 </style>
 </head>
 <body>
-
-<h1>Photo<b>encyclop</b>IA</h1>
-<img id="preview">
-<input type="file" id="fileinput" accept="image/*">
-<button id="analyze">🔍 Analyser</button>
-<button id="reset">📷 Nouvelle photo</button>
-<p id="status">Choisis une photo ci-dessus</p>
-<div id="result"></div>
+<header><div class="logo">Photo<b>encyclop</b>IA</div></header>
+<div class="main">
+  <img id="preview">
+  <input type="file" id="fileinput" accept="image/*">
+  <button id="analyze">🔍 Analyser cette photo</button>
+  <button id="reset">📷 Nouvelle photo</button>
+  <p id="status">Choisis ou prends une photo ci-dessus</p>
+  <div id="errbox"></div>
+  <div id="result"></div>
+</div>
+<footer>PhotoencyclopIA — OpenRouter</footer>
 
 <script>
-var b64 = '', mime = 'image/jpeg';
+var b64='',mime='image/jpeg';
+var PROXY='https://photoencyclopia-proxy.widehem-olivier.workers.dev';
+var MODELS=['openrouter/free','meta-llama/llama-4-maverick:free','qwen/qwen2.5-vl-32b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free'];
 
-document.getElementById('fileinput').onchange = function() {
-  var file = this.files[0];
-  if (!file) return;
-  mime = file.type || 'image/jpeg';
-  var r = new FileReader();
-  r.onload = function(e) {
-    b64 = e.target.result.split(',')[1];
-    document.getElementById('preview').src = e.target.result;
-    document.getElementById('preview').style.display = 'block';
-    document.getElementById('analyze').style.display = 'block';
-    document.getElementById('status').textContent = 'Photo prête — appuie sur Analyser !';
-    document.getElementById('result').style.display = 'none';
-    document.getElementById('reset').style.display = 'none';
+document.getElementById('fileinput').onchange=function(){
+  var file=this.files[0];
+  if(!file)return;
+  mime=file.type||'image/jpeg';
+  var r=new FileReader();
+  r.onload=function(ev){
+    b64=ev.target.result.split(',')[1];
+    document.getElementById('preview').src=ev.target.result;
+    document.getElementById('preview').style.display='block';
+    document.getElementById('analyze').style.display='block';
+    document.getElementById('status').textContent='Photo prête — appuie sur Analyser !';
+    document.getElementById('result').style.display='none';
+    document.getElementById('errbox').style.display='none';
+    document.getElementById('reset').style.display='none';
   };
   r.readAsDataURL(file);
 };
 
-document.getElementById('analyze').onclick = function() {
-  if (!b64) return;
-  this.disabled = true;
-  document.getElementById('status').textContent = 'Analyse en cours…';
-  document.getElementById('result').style.display = 'none';
-  var prompt = 'Analyse cette photo. Retourne UNIQUEMENT du JSON valide, rien d\'autre.\n{"emoji":"🔍","categorie":"type","nom":"nom","nom_latin":"sci","description":"3 phrases","analyse":"3 phrases sur cette photo","conseils":["1","2","3"],"le_saviez_vous":"fait","recette_ou_usage":"usage"}';
-  var models = ['meta-llama/llama-4-maverick:free','qwen/qwen2.5-vl-32b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free'];
-  function tryNext(i) {
-    if (i >= models.length) { document.getElementById('status').textContent = 'Aucun modèle dispo, réessaie.'; document.getElementById('analyze').disabled = false; return; }
-    document.getElementById('status').textContent = 'Modèle ' + (i+1) + '/' + models.length + '…';
-    fetch('https://photoencyclopia-proxy.widehem-olivier.workers.dev', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model: models[i], messages:[{role:'user',content:[{type:'text',text:prompt},{type:'image_url',image_url:{url:'data:'+mime+';base64,'+b64}}]}], max_tokens:700, temperature:0.1 }) })
-    .then(function(r){return r.json();}).then(function(d){
-      var raw = d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||'';
-      if (!raw) { tryNext(i+1); return; }
-      raw = raw.replace(/```json/g,'').replace(/```/g,'').trim();
-      var m = raw.match(/\{[\s\S]*\}/); if(m) raw=m[0];
-      try { showResult(JSON.parse(raw)); } catch(e) { document.getElementById('status').textContent='Réponse inattendue, réessaie.'; document.getElementById('analyze').disabled=false; }
-    }).catch(function(){ tryNext(i+1); });
-  }
-  tryNext(0);
+document.getElementById('analyze').onclick=function(){
+  if(!b64)return;
+  this.disabled=true;
+  document.getElementById('status').innerHTML='<div class="spinner"></div>';
+  document.getElementById('result').style.display='none';
+  document.getElementById('errbox').style.display='none';
+  var prompt='Analyse cette photo. Retourne UNIQUEMENT du JSON valide sans texte avant ou après.\n{"emoji":"🔍","categorie":"type précis","nom":"nom commun","nom_latin":"nom sci ou marque","description":"3-4 phrases","analyse":"3-4 phrases sur cette photo précisément","conseils":["conseil 1","conseil 2","conseil 3"],"le_saviez_vous":"fait surprenant","recette_ou_usage":"usage pratique adapté"}';
+  tryNext(0,prompt);
 };
 
-function showResult(f) {
-  document.getElementById('status').textContent = '';
-  document.getElementById('analyze').style.display = 'none';
-  document.getElementById('reset').style.display = 'block';
-  var h = '<div style="font-size:48px;margin-bottom:8px">'+(f.emoji||'🔍')+'</div>';
-  h += '<div class="cat">'+e(f.categorie)+'</div><div class="name">'+e(f.nom)+'</div>';
-  if(f.nom_latin) h+='<div class="latin">'+e(f.nom_latin)+'</div>';
-  h += '<div class="card"><h3>📖 Description</h3><p>'+e(f.description)+'</p></div>';
-  h += '<div class="card"><h3>🔬 Ce que je vois</h3><p>'+e(f.analyse)+'</p></div>';
-  if(f.conseils&&f.conseils.length){h+='<div class="card"><h3>💡 Conseils</h3><ul>';f.conseils.forEach(function(c){h+='<li>'+e(c)+'</li>';});h+='</ul></div>';}
-  if(f.le_saviez_vous) h+='<div class="card"><h3>🌟 Le saviez-vous ?</h3><p>'+e(f.le_saviez_vous)+'</p></div>';
-  if(f.recette_ou_usage) h+='<div class="card"><h3>🍽 Recette & Usage</h3><p>'+e(f.recette_ou_usage)+'</p></div>';
+function tryNext(i,prompt){
+  if(i>=MODELS.length){
+    document.getElementById('status').textContent='';
+    document.getElementById('errbox').textContent='😕 Aucun modèle disponible, réessaie dans quelques instants.';
+    document.getElementById('errbox').style.display='block';
+    document.getElementById('analyze').disabled=false;
+    return;
+  }
+  fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    model:MODELS[i],
+    messages:[{role:'user',content:[{type:'text',text:prompt},{type:'image_url',image_url:{url:'data:'+mime+';base64,'+b64}}]}],
+    max_tokens:800,temperature:0.1
+  })})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var raw=d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||'';
+    if(!raw||d.error){tryNext(i+1,prompt);return;}
+    raw=raw.replace(/```json/g,'').replace(/```/g,'').trim();
+    var m=raw.match(/\{[\s\S]*\}/);if(m)raw=m[0];
+    try{showResult(JSON.parse(raw));}
+    catch(e){
+      try{
+        var o=(raw.match(/\{/g)||[]).length,c=(raw.match(/\}/g)||[]).length;
+        for(var j=0;j<o-c;j++)raw+='}';
+        showResult(JSON.parse(raw));
+      }catch(e2){
+        document.getElementById('status').textContent='';
+        document.getElementById('errbox').textContent='😕 Réponse inattendue, réessaie.';
+        document.getElementById('errbox').style.display='block';
+        document.getElementById('analyze').disabled=false;
+      }
+    }
+  })
+  .catch(function(){tryNext(i+1,prompt);});
+}
+
+function showResult(f){
+  document.getElementById('status').textContent='';
+  document.getElementById('analyze').style.display='none';
+  document.getElementById('reset').style.display='block';
+  var h='<div class="r-emoji">'+(f.emoji||'🔍')+'</div>';
+  h+='<div class="r-cat">'+e(f.categorie)+'</div>';
+  h+='<div class="r-name">'+e(f.nom)+'</div>';
+  if(f.nom_latin)h+='<div class="r-latin">'+e(f.nom_latin)+'</div>';
+  h+='<div class="card"><div class="card-label">📖 Description</div><div class="card-text">'+e(f.description)+'</div></div>';
+  h+='<div class="card"><div class="card-label">🔬 Ce que je vois</div><div class="card-text">'+e(f.analyse)+'</div></div>';
+  if(f.conseils&&f.conseils.length){
+    h+='<div class="card"><div class="card-label">💡 Conseils</div><ul class="tips">';
+    f.conseils.forEach(function(c,i){h+='<li><div class="tip-n">'+(i+1)+'</div><span>'+e(c)+'</span></li>';});
+    h+='</ul></div>';
+  }
+  if(f.le_saviez_vous)h+='<div class="card"><div class="card-label">🌟 Le saviez-vous ?</div><div class="card-text">'+e(f.le_saviez_vous)+'</div></div>';
+  if(f.recette_ou_usage)h+='<div class="recipe"><div class="recipe-label">🍽 Recette & Usage</div><div class="card-text">'+e(f.recette_ou_usage)+'</div></div>';
   document.getElementById('result').innerHTML=h;
   document.getElementById('result').style.display='block';
   document.getElementById('analyze').disabled=false;
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-document.getElementById('reset').onclick = function() {
-  b64=''; document.getElementById('fileinput').value='';
+document.getElementById('reset').onclick=function(){
+  b64='';document.getElementById('fileinput').value='';
   document.getElementById('preview').style.display='none';
   document.getElementById('analyze').style.display='none';
   document.getElementById('reset').style.display='none';
   document.getElementById('result').style.display='none';
-  document.getElementById('status').textContent='Choisis une photo ci-dessus';
+  document.getElementById('errbox').style.display='none';
+  document.getElementById('status').textContent='Choisis ou prends une photo ci-dessus';
 };
 
 function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
