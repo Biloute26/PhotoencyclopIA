@@ -2,268 +2,140 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0d1f0f">
 <title>PhotoencyclopIA</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0d1f0f; color: #f5f0e8; min-height: 100vh; max-width: 480px; margin: 0 auto; }
-header { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.logo { font-size: 22px; font-weight: 700; color: #c8e6c9; }
-.logo span { color: #4caf52; }
-.main { padding: 20px; }
-
-/* Zone preview */
-.preview-box {
-  background: #1a3a1d; border: 2px dashed rgba(76,175,82,0.4);
-  border-radius: 20px; min-height: 180px;
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; text-align: center; padding: 24px;
-  margin-bottom: 14px; overflow: hidden; position: relative;
-}
-.preview-box img { width: 100%; max-height: 260px; object-fit: cover; border-radius: 16px; display: block; }
-.preview-icon { font-size: 52px; margin-bottom: 10px; }
-.preview-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
-.preview-sub { font-size: 13px; color: #a8c5aa; }
-
-/* Buttons */
-.btn-photo {
-  width: 100%; padding: 16px; border-radius: 14px; border: none;
-  background: linear-gradient(135deg, #2d6a31, #4caf52);
-  color: white; font-size: 16px; font-weight: 600;
-  cursor: pointer; margin-bottom: 12px; display: flex;
-  align-items: center; justify-content: center; gap: 10px;
-}
-.btn-row { display: none; gap: 10px; margin-bottom: 12px; }
-.btn-row.show { display: flex; }
-.btn-change {
-  flex: 1; padding: 14px; border-radius: 14px;
-  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
-  color: #f5f0e8; font-size: 14px; cursor: pointer;
-}
-.btn-analyze {
-  flex: 2; padding: 14px; border-radius: 14px; border: none;
-  background: linear-gradient(135deg, #2d6a31, #4caf52);
-  color: white; font-size: 15px; font-weight: 600; cursor: pointer;
-}
-.btn-analyze:disabled { opacity: 0.5; }
-
-/* Loading */
-.loading { display: none; text-align: center; padding: 30px; }
-.loading.show { display: block; }
-.spinner {
-  width: 40px; height: 40px; border: 3px solid rgba(76,175,82,0.2);
-  border-top-color: #4caf52; border-radius: 50%;
-  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Result */
-.result { display: none; }
-.result.show { display: block; }
-.r-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
-.r-emoji { font-size: 44px; }
-.r-cat { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #4caf52; font-weight: 600; }
-.r-name { font-size: 22px; font-weight: 700; line-height: 1.2; }
-.r-latin { font-size: 13px; color: #a8c5aa; font-style: italic; }
-.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.pill { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 5px 12px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
-.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.dot.g { background: #4caf52; } .dot.a { background: #e8a020; } .dot.r { background: #f44336; }
-.card { background: #1a3a1d; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-.card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #4caf52; font-weight: 600; margin-bottom: 10px; }
-.card-text { font-size: 14px; line-height: 1.7; }
-.tips { list-style: none; }
-.tips li { display: flex; gap: 8px; font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
-.tip-n { width: 20px; height: 20px; background: rgba(76,175,82,0.2); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #4caf52; margin-top: 2px; }
-.recipe-card { background: linear-gradient(135deg, rgba(232,160,32,0.1), rgba(232,160,32,0.03)); border: 1px solid rgba(232,160,32,0.2); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-.recipe-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #e8a020; font-weight: 600; margin-bottom: 10px; }
-
-/* Error */
-.error { display: none; }
-.error.show { display: block; }
-.error-box { background: rgba(244,67,54,0.1); border: 1px solid rgba(244,67,54,0.3); border-radius: 14px; padding: 20px; text-align: center; }
-.error-text { font-size: 14px; color: #ff8a80; margin-top: 8px; line-height: 1.6; }
-.btn-new { width: 100%; padding: 14px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a8c5aa; font-size: 14px; cursor: pointer; margin-top: 4px; }
-footer { text-align: center; padding: 20px; font-size: 11px; color: rgba(255,255,255,0.2); }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#0d1f0f;color:#f5f0e8;max-width:480px;margin:0 auto;padding:16px}
+h1{font-size:20px;color:#c8e6c9;margin-bottom:16px}
+h1 span{color:#4caf52}
+#img-preview{width:100%;max-height:260px;object-fit:cover;border-radius:14px;display:none;margin-bottom:12px}
+input[type=file]{width:100%;padding:14px;background:#1a3a1d;border:2px dashed rgba(76,175,82,0.5);border-radius:14px;color:#4caf52;font-size:15px;margin-bottom:12px;cursor:pointer}
+button{width:100%;padding:15px;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;display:none}
+#btnAnalyze{background:linear-gradient(135deg,#2d6a31,#4caf52);color:white}
+#btnNew{background:rgba(255,255,255,0.07);color:#f5f0e8;border:1px solid rgba(255,255,255,0.15)}
+#loading{display:none;text-align:center;padding:24px}
+.spin{width:40px;height:40px;border:3px solid rgba(76,175,82,0.2);border-top-color:#4caf52;border-radius:50%;animation:s 0.8s linear infinite;margin:0 auto 10px}
+@keyframes s{to{transform:rotate(360deg)}}
+#result{display:none}
+.card{background:#1a3a1d;border-radius:12px;padding:14px;margin-bottom:10px}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#4caf52;font-weight:600;margin-bottom:8px}
+.txt{font-size:14px;line-height:1.7}
+.rhead{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.emo{font-size:42px}
+.rcat{font-size:11px;text-transform:uppercase;color:#4caf52;font-weight:600}
+.rname{font-size:22px;font-weight:700}
+.rlatin{font-size:12px;color:#a8c5aa;font-style:italic}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pill{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px 10px;font-size:12px;display:flex;align-items:center;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%}
+.g{background:#4caf52}.a{background:#e8a020}.r{background:#f44336}
+.tips{list-style:none}
+.tips li{display:flex;gap:8px;font-size:14px;line-height:1.6;margin-bottom:6px}
+.tn{width:20px;height:20px;background:rgba(76,175,82,0.2);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#4caf52;margin-top:2px}
+.rcrd{background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:12px;padding:14px;margin-bottom:10px}
+.rlbl{font-size:11px;text-transform:uppercase;color:#e8a020;font-weight:600;margin-bottom:8px}
+#errbox{display:none;background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.3);border-radius:12px;padding:16px;text-align:center;color:#ff8a80;font-size:14px;margin-bottom:10px}
 </style>
 </head>
 <body>
-<header><div class="logo">Photo<span>encyclop</span>IA</div></header>
-<div class="main">
+<h1>Photo<span>encyclop</span>IA</h1>
 
-  <div class="preview-box" id="previewBox">
-    <div class="preview-icon">📷</div>
-    <div class="preview-title">Prends ou importe une photo</div>
-    <div class="preview-sub">Plante, animal, objet, aliment, monument…</div>
-  </div>
+<img id="img-preview">
+<input type="file" id="fileInput" accept="image/*">
+<button id="btnAnalyze">🔍 Analyser cette photo</button>
+<button id="btnNew">📷 Nouvelle photo</button>
 
-  <label for="fileInput" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,#2d6a31,#4caf52);color:white;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:12px;">
-    📷 Choisir / Prendre une photo
-  </label>
-  <input type="file" id="fileInput" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;">
-
-  <div class="btn-row" id="btnRow">
-    <button class="btn-change" id="btnChange">🔄 Changer</button>
-    <button class="btn-analyze" id="btnAnalyze">🔍 Analyser</button>
-  </div>
-
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p style="font-size:16px;font-weight:600;">Analyse en cours…</p>
-    <p style="font-size:13px;color:#a8c5aa;margin-top:4px;" id="loadingSub">Identification…</p>
-  </div>
-
-  <div class="error" id="error">
-    <div class="error-box">
-      <div style="font-size:32px">😕</div>
-      <div class="error-text" id="errorText"></div>
-    </div>
-  </div>
-
-  <div class="result" id="result"></div>
-  <button class="btn-new" id="btnNew" style="display:none">📸 Nouvelle photo</button>
-
-</div>
-<footer>PhotoencyclopIA — OpenRouter</footer>
+<div id="loading"><div class="spin"></div><p>Analyse en cours…</p><p id="lsub" style="font-size:13px;color:#a8c5aa;margin-top:4px"></p></div>
+<div id="errbox"></div>
+<div id="result"></div>
 
 <script>
-const PROXY = "https://photoencyclopia-proxy.widehem-olivier.workers.dev";
-const MODELS = [
-  "meta-llama/llama-4-maverick:free",
-  "qwen/qwen2.5-vl-32b-instruct:free",
-  "mistralai/mistral-small-3.1-24b-instruct:free",
-  "google/gemma-3-27b-it:free"
-];
+var PROXY="https://photoencyclopia-proxy.widehem-olivier.workers.dev";
+var MODELS=["meta-llama/llama-4-maverick:free","qwen/qwen2.5-vl-32b-instruct:free","mistralai/mistral-small-3.1-24b-instruct:free","google/gemma-3-27b-it:free"];
+var b64="",mime="image/jpeg";
 
-let b64 = "", mime = "image/jpeg";
-
-const previewBox = document.getElementById("previewBox");
-const fileInput = document.getElementById("fileInput");
-const btnPhoto = document.getElementById("btnPhoto");
-const btnRow = document.getElementById("btnRow");
-const btnChange = document.getElementById("btnChange");
-const btnAnalyze = document.getElementById("btnAnalyze");
-const loading = document.getElementById("loading");
-const loadingSub = document.getElementById("loadingSub");
-const result = document.getElementById("result");
-const error = document.getElementById("error");
-const errorText = document.getElementById("errorText");
-const btnNew = document.getElementById("btnNew");
-
-btnChange.addEventListener("click", function() { fileInput.click(); });
-btnNew.addEventListener("click", reset);
-
-fileInput.addEventListener("change", function() {
-  const file = this.files[0];
-  if (!file) return;
-  mime = file.type || "image/jpeg";
-  const reader = new FileReader();
-  reader.onloadend = function() {
-    if (!reader.result) return;
-    b64 = reader.result.split(",")[1];
-    previewBox.innerHTML = '<img src="' + reader.result + '" style="width:100%;max-height:260px;object-fit:cover;border-radius:16px;">';
-    document.querySelector('label[for=fileInput]').style.display = 'none';
-    document.getElementById('btnRow').style.display = 'flex';
-    hideAll();
+document.getElementById("fileInput").onchange=function(){
+  var file=this.files[0];
+  if(!file)return;
+  mime=file.type||"image/jpeg";
+  var reader=new FileReader();
+  reader.onloadend=function(){
+    if(!reader.result)return;
+    b64=reader.result.split(",")[1];
+    document.getElementById("img-preview").src=reader.result;
+    document.getElementById("img-preview").style.display="block";
+    document.getElementById("btnAnalyze").style.display="block";
+    document.getElementById("errbox").style.display="none";
+    document.getElementById("result").style.display="none";
   };
-  setTimeout(function() { reader.readAsDataURL(file); }, 100);
-});
+  reader.readAsDataURL(file);
+};
 
-btnAnalyze.addEventListener("click", analyze);
+document.getElementById("btnAnalyze").onclick=function(){
+  if(!b64)return;
+  document.getElementById("btnAnalyze").style.display="none";
+  document.getElementById("loading").style.display="block";
+  document.getElementById("errbox").style.display="none";
+  document.getElementById("result").style.display="none";
+  var prompt='Analyse cette photo. Retourne UNIQUEMENT ce JSON sans rien d'autre:
+{"emoji":"X","categorie":"type","nom":"nom","nom_latin":"sci","statut":[{"label":"info","couleur":"vert"}],"description":"3 phrases","analyse":"3 phrases sur cette photo","conseils":["1","2","3"],"le_saviez_vous":"fait","recette_ou_usage":"usage"}';
+  tryModels(0,prompt);
+};
 
-async function analyze() {
-  if (!b64) return;
-  hideAll();
-  loading.classList.add("show");
-  btnAnalyze.disabled = true;
-
-  const prompt = "Analyse cette photo. Retourne UNIQUEMENT ce JSON sans rien d\'autre:\n{\"emoji\":\"X\",\"categorie\":\"type\",\"nom\":\"nom\",\"nom_latin\":\"sci\",\"statut\":[{\"label\":\"info\",\"couleur\":\"vert\"}],\"description\":\"3 phrases\",\"analyse\":\"3 phrases sur cette photo\",\"conseils\":[\"1\",\"2\",\"3\"],\"le_saviez_vous\":\"fait\",\"recette_ou_usage\":\"usage\"}";
-
-  let raw = "", lastErr = "";
-  for (let i = 0; i < MODELS.length; i++) {
-    try {
-      loadingSub.textContent = "Modèle " + (i+1) + "/" + MODELS.length + "…";
-      const resp = await fetch(PROXY, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: MODELS[i],
-          messages: [{ role: "user", content: [
-            { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: "data:" + mime + ";base64," + b64 } }
-          ]}],
-          max_tokens: 700,
-          temperature: 0.1
-        })
-      });
-      const data = await resp.json();
-      if (!resp.ok) { lastErr = (data.error && data.error.message) || ("Erreur " + resp.status); continue; }
-      raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
-      if (raw) break;
-    } catch(e) { lastErr = e.message; }
-  }
-
-  loading.classList.remove("show");
-  btnAnalyze.disabled = false;
-
-  if (!raw) { showError(lastErr || "Aucun modèle disponible, réessaie."); return; }
-
-  raw = raw.replace(/```json/g,"").replace(/```/g,"").trim();
-  const m = raw.match(/\{[\s\S]*\}/);
-  if (m) raw = m[0];
-  let fiche;
-  try { fiche = JSON.parse(raw); }
-  catch {
-    try {
-      const o = (raw.match(/\{/g)||[]).length, c = (raw.match(/\}/g)||[]).length;
-      for(let i=0;i<o-c;i++) raw += "}";
-      fiche = JSON.parse(raw);
-    } catch { showError("Réponse inattendue, réessaie."); return; }
-  }
-  showResult(fiche);
+function tryModels(i,prompt){
+  if(i>=MODELS.length){done("",MODELS[i-1]+" indisponible");return;}
+  document.getElementById("lsub").textContent="Modèle "+(i+1)+"/"+MODELS.length+"…";
+  fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    model:MODELS[i],
+    messages:[{role:"user",content:[{type:"text",text:prompt},{type:"image_url",image_url:{url:"data:"+mime+";base64,"+b64}}]}],
+    max_tokens:700,temperature:0.1
+  })}).then(function(r){return r.json();}).then(function(data){
+    var raw=(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||"";
+    if(!raw){tryModels(i+1,prompt);return;}
+    done(raw,"");
+  }).catch(function(){tryModels(i+1,prompt);});
 }
 
-function showResult(f) {
-  hideAll();
-  const pills = (f.statut||[]).map(function(s) {
-    const dc = s.couleur === "amber" ? "a" : s.couleur === "rouge" ? "r" : "g";
-    return "<div class=\"pill\"><div class=\"dot " + dc + "\"></div>" + esc(s.label) + "</div>";
-  }).join("");
-  const tips = (f.conseils||[]).map(function(c,i) {
-    return "<li><div class=\"tip-n\">" + (i+1) + "</div><span>" + esc(c) + "</span></li>";
-  }).join("");
-
-  result.innerHTML =
-    "<div class=\"r-header\"><div class=\"r-emoji\">" + (f.emoji||"🔍") + "</div><div>" +
-    "<div class=\"r-cat\">" + esc(f.categorie||"") + "</div>" +
-    "<div class=\"r-name\">" + esc(f.nom||"") + "</div>" +
-    (f.nom_latin ? "<div class=\"r-latin\">" + esc(f.nom_latin) + "</div>" : "") +
-    "</div></div>" +
-    (pills ? "<div class=\"pills\">" + pills + "</div>" : "") +
-    "<div class=\"card\"><div class=\"card-label\">📖 Description</div><div class=\"card-text\">" + esc(f.description||"") + "</div></div>" +
-    "<div class=\"card\"><div class=\"card-label\">🔬 Ce que je vois</div><div class=\"card-text\">" + esc(f.analyse||"") + "</div></div>" +
-    (tips ? "<div class=\"card\"><div class=\"card-label\">💡 Conseils</div><ul class=\"tips\">" + tips + "</ul></div>" : "") +
-    (f.le_saviez_vous ? "<div class=\"card\"><div class=\"card-label\">🌟 Le saviez-vous ?</div><div class=\"card-text\">" + esc(f.le_saviez_vous) + "</div></div>" : "") +
-    (f.recette_ou_usage ? "<div class=\"recipe-card\"><div class=\"recipe-label\">🍽 Recette & Usage</div><div class=\"card-text\">" + esc(f.recette_ou_usage) + "</div></div>" : "");
-
-  result.classList.add("show");
-  btnNew.style.display = "block";
+function done(raw,err){
+  document.getElementById("loading").style.display="none";
+  document.getElementById("btnNew").style.display="block";
+  if(err||!raw){document.getElementById("errbox").textContent="😕 "+err;document.getElementById("errbox").style.display="block";return;}
+  raw=raw.replace(/```json/g,"").replace(/```/g,"").trim();
+  var m=raw.match(/\{[\s\S]*\}/);if(m)raw=m[0];
+  var f;
+  try{f=JSON.parse(raw);}catch(e){document.getElementById("errbox").textContent="😕 Réponse inattendue, réessaie.";document.getElementById("errbox").style.display="block";return;}
+  showResult(f);
 }
 
-function showError(msg) { hideAll(); errorText.textContent = msg; error.classList.add("show"); }
-function hideAll() { loading.classList.remove("show"); result.classList.remove("show"); error.classList.remove("show"); btnNew.style.display = "none"; }
-function reset() {
-  b64 = ""; fileInput.value = "";
-  previewBox.innerHTML = "<div class=\"preview-icon\">📷</div><div class=\"preview-title\">Prends ou importe une photo</div><div class=\"preview-sub\">Plante, animal, objet, aliment, monument…</div>";
-  document.querySelector('label[for=fileInput]').style.display = 'flex';
-  btnRow.classList.remove("show");
-  hideAll();
+function showResult(f){
+  var pills=(f.statut||[]).map(function(s){var dc=s.couleur==="amber"?"a":s.couleur==="rouge"?"r":"g";return'<div class="pill"><div class="dot '+dc+'"></div>'+esc(s.label)+'</div>';}).join("");
+  var tips=(f.conseils||[]).map(function(c,i){return'<li><div class="tn">'+(i+1)+'</div><span>'+esc(c)+'</span></li>';}).join("");
+  document.getElementById("result").innerHTML=
+    '<div class="rhead"><div class="emo">'+(f.emoji||"🔍")+'</div><div><div class="rcat">'+esc(f.categorie||"")+'</div><div class="rname">'+esc(f.nom||"")+'</div>'+(f.nom_latin?'<div class="rlatin">'+esc(f.nom_latin)+'</div>':"")+' </div></div>'+
+    (pills?'<div class="pills">'+pills+'</div>':"")+
+    '<div class="card"><div class="lbl">📖 Description</div><div class="txt">'+esc(f.description||"")+'</div></div>'+
+    '<div class="card"><div class="lbl">🔬 Ce que je vois</div><div class="txt">'+esc(f.analyse||"")+'</div></div>'+
+    (tips?'<div class="card"><div class="lbl">💡 Conseils</div><ul class="tips">'+tips+'</ul></div>':"")+
+    (f.le_saviez_vous?'<div class="card"><div class="lbl">🌟 Le saviez-vous ?</div><div class="txt">'+esc(f.le_saviez_vous)+'</div></div>':"")+
+    (f.recette_ou_usage?'<div class="rcrd"><div class="rlbl">🍽 Recette & Usage</div><div class="txt">'+esc(f.recette_ou_usage)+'</div></div>':"");
+  document.getElementById("result").style.display="block";
+}
+
+document.getElementById("btnNew").onclick=function(){
+  b64="";
+  document.getElementById("fileInput").value="";
+  document.getElementById("img-preview").style.display="none";
+  document.getElementById("btnAnalyze").style.display="none";
+  document.getElementById("btnNew").style.display="none";
+  document.getElementById("result").style.display="none";
+  document.getElementById("errbox").style.display="none";
   window.scrollTo({top:0,behavior:"smooth"});
-}
-function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/
-/g,"<br>"); }
+};
+
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/
+/g,"<br>");}
 </script>
 </body>
 </html>
