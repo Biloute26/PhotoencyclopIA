@@ -2,792 +2,335 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0d1f0f">
 <title>PhotoencyclopIA</title>
-<link rel="manifest" href="#" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green-dark: #0d1f0f; --green-mid: #1a3a1d; --green-accent: #2d6a31;
+  --green-light: #4caf52; --cream: #f5f0e8; --amber: #e8a020;
+  --text-muted: #a8c5aa;
+}
+body { font-family: "DM Sans", sans-serif; background: var(--green-dark); color: var(--cream); min-height: 100vh; }
+header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.logo { font-family: "Playfair Display", serif; font-size: 20px; color: #c8e6c9; }
+.logo span { color: var(--green-light); }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* CAPTURE */
+.capture-wrap { padding: 20px; }
+.capture-zone {
+  background: var(--green-mid);
+  border: 2px dashed rgba(76,175,82,0.4);
+  border-radius: 20px;
+  min-height: 200px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 30px 20px;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.capture-zone:hover { border-color: var(--green-light); }
+.capture-zone.has-image { padding: 0; border-style: solid; border-color: var(--green-accent); }
+.capture-icon { font-size: 48px; margin-bottom: 12px; }
+.capture-title { font-family: "Playfair Display", serif; font-size: 18px; margin-bottom: 6px; }
+.capture-sub { font-size: 13px; color: var(--text-muted); }
+.preview-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 18px; display: block; }
+.change-btn {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 16px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+}
 
-  :root {
-    --green-dark: #0d1f0f;
-    --green-mid: #1a3a1d;
-    --green-accent: #2d6a31;
-    --green-light: #4caf52;
-    --green-pale: #c8e6c9;
-    --cream: #f5f0e8;
-    --amber: #e8a020;
-    --text-main: #f5f0e8;
-    --text-muted: #a8c5aa;
-    --text-dark: #1a2e1c;
-  }
+/* BUTTONS */
+.actions { display: none; padding: 0 20px 16px; gap: 10px; }
+.actions.show { display: flex; }
+.btn-analyze {
+  flex: 1; background: linear-gradient(135deg, var(--green-accent), var(--green-light));
+  border: none; border-radius: 14px; color: white;
+  font-size: 16px; font-weight: 500; padding: 15px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: "DM Sans", sans-serif;
+}
+.btn-analyze:disabled { opacity: 0.5; }
+.btn-retry {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; color: var(--cream); font-size: 20px;
+  padding: 15px 18px; cursor: pointer;
+}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--green-dark);
-    color: var(--text-main);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* LOADING */
+.loading { display: none; padding: 40px 20px; text-align: center; }
+.loading.show { display: block; }
+.spinner {
+  width: 44px; height: 44px; border: 3px solid rgba(76,175,82,0.2);
+  border-top-color: var(--green-light); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: "Playfair Display", serif; font-size: 17px; }
+.loading-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
-  /* ── HEADER ── */
-  header {
-    padding: 20px 20px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    color: var(--green-pale);
-    letter-spacing: -0.5px;
-  }
-  .logo span { color: var(--green-light); }
-  .api-btn {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: var(--text-muted);
-    font-size: 12px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.2s;
-  }
-  .api-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-main); }
-  .api-btn.configured { color: var(--green-light); border-color: var(--green-light); }
+/* RESULT */
+.result { display: none; padding: 0 20px 20px; }
+.result.show { display: block; }
+.result-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+.result-emoji { font-size: 42px; flex-shrink: 0; }
+.result-cat { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green-light); font-weight: 500; }
+.result-name { font-family: "Playfair Display", serif; font-size: 24px; line-height: 1.2; }
+.result-latin { font-size: 13px; color: var(--text-muted); font-style: italic; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.pill {
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 5px 12px; font-size: 12px;
+  display: flex; align-items: center; gap: 5px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-light); flex-shrink: 0; }
+.dot.amber { background: var(--amber); }
+.dot.red { background: #f44336; }
+.card {
+  background: var(--green-mid); border-radius: 14px; padding: 16px;
+  margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.06);
+}
+.card-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--green-light); font-weight: 500; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.card-text { font-size: 14px; line-height: 1.7; }
+.tips { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.tips li { display: flex; gap: 8px; font-size: 14px; line-height: 1.6; }
+.tip-n {
+  width: 20px; height: 20px; background: rgba(76,175,82,0.2);
+  border-radius: 50%; flex-shrink: 0; display: flex;
+  align-items: center; justify-content: center; font-size: 10px;
+  color: var(--green-light); margin-top: 2px;
+}
+.recipe-card {
+  background: linear-gradient(135deg, rgba(232,160,32,0.12), rgba(232,160,32,0.04));
+  border: 1px solid rgba(232,160,32,0.2); border-radius: 14px;
+  padding: 16px; margin-bottom: 12px;
+}
+.recipe-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--amber); font-weight: 500; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 
-  /* ── API MODAL ── */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.75);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--green-mid);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px;
-    padding: 28px 24px;
-    width: 100%;
-    max-width: 360px;
-  }
-  .modal h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    margin-bottom: 8px;
-    color: var(--cream);
-  }
-  .modal p {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-  .modal a { color: var(--green-light); }
-  .modal input {
-    width: 100%;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 12px 14px;
-    color: var(--cream);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    margin-bottom: 14px;
-    outline: none;
-  }
-  .modal input:focus { border-color: var(--green-light); }
-  .modal-btns { display: flex; gap: 10px; }
-  .btn-save {
-    flex: 1;
-    background: var(--green-accent);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 12px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.2s;
-  }
-  .btn-save:hover { background: var(--green-light); }
-  .btn-cancel {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    color: var(--text-muted);
-    font-size: 14px;
-    padding: 12px 16px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-  }
+/* ERROR */
+.error { display: none; padding: 20px; text-align: center; }
+.error.show { display: block; }
+.error-box { background: rgba(244,67,54,0.1); border: 1px solid rgba(244,67,54,0.3); border-radius: 14px; padding: 20px; }
+.error-text { font-size: 14px; color: #ff8a80; line-height: 1.6; margin-top: 8px; }
 
-  /* ── MAIN ZONE ── */
-  main { padding: 24px 20px; }
-
-  /* ── CAPTURE ZONE ── */
-  .capture-zone {
-    background: var(--green-mid);
-    border: 2px dashed rgba(76,175,82,0.35);
-    border-radius: 24px;
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-  .capture-zone:hover, .capture-zone.dragover {
-    border-color: var(--green-light);
-    background: rgba(45,106,49,0.3);
-  }
-  .capture-zone.has-image {
-    padding: 0;
-    border-style: solid;
-    border-color: var(--green-accent);
-  }
-  .capture-icon {
-    width: 72px;
-    height: 72px;
-    background: rgba(76,175,82,0.15);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 16px;
-    font-size: 32px;
-  }
-  .capture-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    color: var(--cream);
-    margin-bottom: 8px;
-  }
-  .capture-sub {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
-  .preview-img {
-    width: 100%;
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 22px;
-    display: block;
-  }
-  .change-photo {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(0,0,0,0.6);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: white;
-    font-size: 12px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-  }
-  input[type=file] { display: none; }
-
-  /* ── ACTION BUTTONS ── */
-  .actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-  }
-  .btn-analyze {
-    flex: 1;
-    background: linear-gradient(135deg, var(--green-accent), var(--green-light));
-    border: none;
-    border-radius: 14px;
-    color: white;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 16px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: opacity 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-analyze:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-analyze:active { transform: scale(0.98); }
-  .btn-analyze:disabled { opacity: 0.5; cursor: default; transform: none; }
-  .btn-camera {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 14px;
-    color: var(--text-main);
-    font-size: 22px;
-    padding: 16px 20px;
-    cursor: pointer;
-  }
-
-  /* ── LOADING ── */
-  .loading {
-    display: none;
-    text-align: center;
-    padding: 40px 20px;
-  }
-  .loading.active { display: block; }
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border: 3px solid rgba(76,175,82,0.2);
-    border-top-color: var(--green-light);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    color: var(--cream);
-    margin-bottom: 6px;
-  }
-  .loading-sub { font-size: 13px; color: var(--text-muted); }
-
-  /* ── RESULT CARD ── */
-  .result {
-    display: none;
-    margin-top: 24px;
-  }
-  .result.active { display: block; }
-
-  .result-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-  .result-emoji {
-    font-size: 44px;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-  .result-title-block {}
-  .result-category {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--green-light);
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
-  .result-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 26px;
-    color: var(--cream);
-    line-height: 1.2;
-  }
-  .result-latin {
-    font-size: 13px;
-    color: var(--text-muted);
-    font-style: italic;
-    margin-top: 2px;
-  }
-
-  /* ── SECTIONS ── */
-  .section {
-    background: var(--green-mid);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 14px;
-    border: 1px solid rgba(255,255,255,0.06);
-  }
-  .section-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--green-light);
-    font-weight: 500;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-label span { font-size: 16px; }
-  .section-text {
-    font-size: 14px;
-    color: var(--cream);
-    line-height: 1.7;
-  }
-
-  /* ── STATUS BAR ── */
-  .status-bar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-  }
-  .status-pill {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .status-pill .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--green-light);
-  }
-  .status-pill .dot.amber { background: var(--amber); }
-  .status-pill .dot.red { background: #f44336; }
-
-  /* ── TIPS ── */
-  .tips-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .tips-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 14px;
-    color: var(--cream);
-    line-height: 1.6;
-  }
-  .tip-bullet {
-    width: 20px;
-    height: 20px;
-    background: rgba(76,175,82,0.2);
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: var(--green-light);
-    margin-top: 2px;
-  }
-
-  /* ── RECIPE ── */
-  .recipe-section {
-    background: linear-gradient(135deg, rgba(232,160,32,0.15), rgba(232,160,32,0.05));
-    border: 1px solid rgba(232,160,32,0.25);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 14px;
-  }
-  .recipe-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--amber);
-    font-weight: 500;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* ── ERROR ── */
-  .error {
-    display: none;
-    background: rgba(244,67,54,0.1);
-    border: 1px solid rgba(244,67,54,0.3);
-    border-radius: 16px;
-    padding: 20px;
-    margin-top: 20px;
-    text-align: center;
-  }
-  .error.active { display: block; }
-  .error-icon { font-size: 36px; margin-bottom: 10px; }
-  .error-text { font-size: 14px; color: #ff8a80; line-height: 1.6; }
-
-  /* ── RESET BTN ── */
-  .btn-reset {
-    width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    color: var(--text-muted);
-    font-size: 14px;
-    padding: 14px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    margin-top: 10px;
-    transition: all 0.2s;
-  }
-  .btn-reset:hover { color: var(--cream); border-color: rgba(255,255,255,0.2); }
-
-  /* ── NO API WARNING ── */
-  .no-api-banner {
-    background: rgba(232,160,32,0.12);
-    border: 1px solid rgba(232,160,32,0.3);
-    border-radius: 14px;
-    padding: 14px 16px;
-    font-size: 13px;
-    color: var(--amber);
-    margin-bottom: 20px;
-    text-align: center;
-    cursor: pointer;
-    display: none;
-  }
-  .no-api-banner.visible { display: block; }
-
-  /* ── FOOTER ── */
-  footer {
-    text-align: center;
-    padding: 20px;
-    font-size: 11px;
-    color: rgba(255,255,255,0.2);
-  }
+.btn-new {
+  width: calc(100% - 40px); margin: 0 20px 20px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; color: var(--text-muted); font-size: 14px;
+  padding: 13px; cursor: pointer; font-family: "DM Sans", sans-serif;
+}
+footer { text-align: center; padding: 16px; font-size: 11px; color: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
 
-<!-- API MODAL -->
-<div class="modal-overlay" id="apiModal">
-  <div class="modal">
-    <h2>🔑 Clé API Gemini</h2>
-    <p>
-      Ta clé reste stockée localement sur ton appareil, jamais envoyée ailleurs.<br><br>
-      Obtiens-la gratuitement sur <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> → "Get API Key"
-    </p>
-    <input type="password" id="apiKeyInput" placeholder="sk-or-..." autocomplete="off" />
-    <div class="modal-btns">
-      <button class="btn-cancel" id="cancelModal">Annuler</button>
-      <button class="btn-save" id="saveApiKey">✓ Enregistrer</button>
-    </div>
-  </div>
-</div>
-
-<!-- HEADER -->
 <header>
   <div class="logo">Photo<span>encyclop</span>IA</div>
-  <button class="api-btn" id="apiToggle">⚙ API Key</button>
 </header>
 
-<main>
-
-  <!-- NO API BANNER -->
-  <div class="no-api-banner" id="noApiBanner" onclick="openModal()">
-    ⚠ Configure ta clé API Gemini pour commencer →
-  </div>
-
-  <!-- CAPTURE ZONE -->
+<div class="capture-wrap">
   <div class="capture-zone" id="captureZone">
     <div class="capture-icon">📷</div>
     <div class="capture-title">Prends ou importe une photo</div>
-    <div class="capture-sub">Plante, légume, fruit, animal, objet…<br>Je l'analyse entièrement</div>
+    <div class="capture-sub">Plante, animal, objet, aliment, monument…<br>J'analyse tout !</div>
   </div>
-  <input type="file" id="fileInput" accept="image/*" capture="environment" />
+</div>
+<input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
 
-  <!-- ACTIONS -->
-  <div class="actions" id="actionsBar" style="display:none;">
-    <button class="btn-camera" id="retakeBtn" title="Nouvelle photo">🔄</button>
-    <button class="btn-analyze" id="analyzeBtn">
-      <span>🔍</span> Analyser la photo
-    </button>
-  </div>
+<div class="actions" id="actions">
+  <button class="btn-retry" id="retryBtn" title="Autre photo">🔄</button>
+  <button class="btn-analyze" id="analyzeBtn">🔍 Analyser</button>
+</div>
 
-  <!-- LOADING -->
-  <div class="loading" id="loadingZone">
-    <div class="spinner"></div>
-    <div class="loading-text">Analyse en cours…</div>
-    <div class="loading-sub">Gemini examine chaque détail</div>
-  </div>
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Analyse en cours…</div>
+  <div class="loading-sub" id="loadingSub">Identification de l'objet</div>
+</div>
 
-  <!-- ERROR -->
-  <div class="error" id="errorZone">
-    <div class="error-icon">😕</div>
+<div class="error" id="error">
+  <div class="error-box">
+    <div style="font-size:32px">😕</div>
     <div class="error-text" id="errorText"></div>
   </div>
+</div>
 
-  <!-- RESULT -->
-  <div class="result" id="resultZone"></div>
+<div class="result" id="result"></div>
+<button class="btn-new" id="newBtn" style="display:none">📸 Analyser une nouvelle photo</button>
 
-</main>
-
-<footer>PhotoencyclopIA — Propulsé par OpenRouter (gratuit)</footer>
+<footer>PhotoencyclopIA — Propulsé par OpenRouter</footer>
 
 <script>
-const STORAGE_KEY = 'photoencyclo_api_key';
-let apiKey = 'proxy';
-let currentImageBase64 = '';
-let currentMime = 'image/jpeg';
+const PROXY = "https://photoencyclopia-proxy.widehem-olivier.workers.dev";
+const MODELS = [
+  "meta-llama/llama-4-maverick:free",
+  "qwen/qwen2.5-vl-32b-instruct:free",
+  "mistralai/mistral-small-3.1-24b-instruct:free",
+  "google/gemma-3-27b-it:free"
+];
 
-// ── UI REFS ──
-const captureZone = document.getElementById('captureZone');
-const fileInput = document.getElementById('fileInput');
-const actionsBar = document.getElementById('actionsBar');
-const analyzeBtn = document.getElementById('analyzeBtn');
-const retakeBtn = document.getElementById('retakeBtn');
-const loadingZone = document.getElementById('loadingZone');
-const resultZone = document.getElementById('resultZone');
-const errorZone = document.getElementById('errorZone');
-const errorText = document.getElementById('errorText');
-const noApiBanner = document.getElementById('noApiBanner');
-const apiToggle = document.getElementById('apiToggle');
-const apiModal = document.getElementById('apiModal');
-const apiKeyInput = document.getElementById('apiKeyInput');
-const saveApiKeyBtn = document.getElementById('saveApiKey');
-const cancelModal = document.getElementById('cancelModal');
+let imageB64 = "", imageMime = "image/jpeg";
 
-// ── INIT ──
-updateApiUI();
+const captureZone = document.getElementById("captureZone");
+const fileInput = document.getElementById("fileInput");
+const actions = document.getElementById("actions");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const retryBtn = document.getElementById("retryBtn");
+const loading = document.getElementById("loading");
+const loadingSub = document.getElementById("loadingSub");
+const result = document.getElementById("result");
+const error = document.getElementById("error");
+const errorText = document.getElementById("errorText");
+const newBtn = document.getElementById("newBtn");
 
-function updateApiUI() {
-  if (apiKey) {
-    apiToggle.textContent = '✓ API OK';
-    apiToggle.classList.add('configured');
-    noApiBanner.classList.remove('visible');
-  } else {
-    apiToggle.textContent = '⚙ API Key';
-    apiToggle.classList.remove('configured');
-    noApiBanner.classList.add('visible');
-  }
-}
+// PHOTO CAPTURE
+captureZone.addEventListener("click", () => fileInput.click());
+retryBtn.addEventListener("click", () => fileInput.click());
+newBtn.addEventListener("click", resetAll);
 
-// ── MODAL ──
-function openModal() {
-  apiKeyInput.value = apiKey ? '••••••••••••••••' : '';
-  apiModal.classList.add('open');
-}
-apiToggle.addEventListener('click', openModal);
-cancelModal.addEventListener('click', () => apiModal.classList.remove('open'));
-saveApiKeyBtn.addEventListener('click', () => {
-  const val = apiKeyInput.value.trim();
-  if (val && val !== '••••••••••••••••') {
-    apiKey = val;
-    localStorage.setItem(STORAGE_KEY, apiKey);
-  }
-  apiModal.classList.remove('open');
-  updateApiUI();
-});
-apiModal.addEventListener('click', e => { if (e.target === apiModal) apiModal.classList.remove('open'); });
-
-// ── PHOTO CAPTURE ──
-captureZone.addEventListener('click', () => fileInput.click());
-
-fileInput.addEventListener('change', e => {
+fileInput.addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
-  currentMime = file.type || 'image/jpeg';
+  imageMime = file.type || "image/jpeg";
   const reader = new FileReader();
   reader.onload = ev => {
-    currentImageBase64 = ev.target.result.split(',')[1];
+    imageB64 = ev.target.result.split(",")[1];
     showPreview(ev.target.result);
   };
   reader.readAsDataURL(file);
 });
 
-retakeBtn.addEventListener('click', () => {
-  fileInput.value = '';
-  fileInput.click();
-});
-
 function showPreview(src) {
-  captureZone.innerHTML = `<img class="preview-img" src="${src}" alt="Photo"><button class="change-photo" id="changePhotoBtn">Changer</button>`;
-  captureZone.classList.add('has-image');
-  document.getElementById('changePhotoBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    fileInput.click();
+  captureZone.innerHTML = `<img class="preview-img" src="${src}"><button class="change-btn" id="changeBtn">Changer</button>`;
+  captureZone.classList.add("has-image");
+  document.getElementById("changeBtn").addEventListener("click", e => {
+    e.stopPropagation(); fileInput.click();
   });
-  actionsBar.style.display = 'flex';
+  actions.classList.add("show");
   hideAll();
 }
 
-// ── ANALYZE ──
-analyzeBtn.addEventListener('click', analyze);
+// ANALYZE
+analyzeBtn.addEventListener("click", analyze);
 
 async function analyze() {
-  if (!apiKey) { openModal(); return; }
-  if (!currentImageBase64) return;
-
+  if (!imageB64) return;
   hideAll();
-  loadingZone.classList.add('active');
+  loading.classList.add("show");
   analyzeBtn.disabled = true;
 
-  const prompt = `Tu es une encyclopédie visuelle. Analyse la photo et retourne UNIQUEMENT ce JSON (rien d'autre, pas de texte) :
-{"emoji":"🔍","categorie":"type","nom":"nom","nom_latin":"sci/marque","statut":[{"label":"état","couleur":"vert"},{"label":"info","couleur":"amber"}],"description":"3 phrases sur ce que c'est","analyse":"3 phrases sur cette photo","conseils":["conseil 1","conseil 2","conseil 3"],"le_saviez_vous":"fait rare","recette_ou_usage":"usage pratique adapté"}`;
+  const prompt = `Tu es une encyclopédie visuelle. Analyse cette photo et retourne UNIQUEMENT un objet JSON valide, sans texte avant ou après.
+{"emoji":"emoji","categorie":"type précis","nom":"nom commun","nom_latin":"nom sci ou marque","statut":[{"label":"info 1","couleur":"vert"},{"label":"info 2","couleur":"amber"}],"description":"3 phrases précises","analyse":"3 phrases sur cette photo","conseils":["conseil 1","conseil 2","conseil 3"],"le_saviez_vous":"fait rare","recette_ou_usage":"usage pratique adapté"}`;
 
-  const MODELS = [
-    "meta-llama/llama-4-maverick:free",
-    "qwen/qwen2.5-vl-32b-instruct:free",
-    "mistralai/mistral-small-3.1-24b-instruct:free"
-  ];
-
-  async function tryModel(model) {
-    const resp = await fetch("https://photoencyclopia-proxy.widehem-olivier.workers.dev", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: "user", content: [
-          { type: "text", text: prompt },
-          { type: "image_url", image_url: { url: `data:${currentMime};base64,${currentImageBase64}` } }
-        ]}],
-        max_tokens: 800,
-        temperature: 0.2
-      })
-    });
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error?.message || "Erreur " + resp.status);
-    }
-    const data = await resp.json();
-    return data.choices?.[0]?.message?.content || "";
-  }
-
-  try {
-    let raw = ""; let lastErr = "";
-    for (const model of MODELS) {
-      try {
-        document.querySelector('.loading-sub').textContent = "Analyse en cours...";
-        raw = await tryModel(model);
-        if (raw) break;
-      } catch(e) { lastErr = e.message; }
-    }
-    if (!raw) throw new Error(lastErr || "Aucun modèle disponible, réessaie.");
-    raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
-    // Extract first JSON object found anywhere in the response
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (jsonMatch) raw = jsonMatch[0];
-    // Fix common JSON issues
-    raw = raw.replace(/[ -]/g, ' ');
-    let fiche;
+  let raw = "", lastErr = "";
+  for (const model of MODELS) {
     try {
-      fiche = JSON.parse(raw);
-    } catch(e) {
-      // Try to fix truncated JSON by closing open brackets
-      try {
-        let fixed = raw;
-        const opens = (fixed.match(/\{/g)||[]).length;
-        const closes = (fixed.match(/\}/g)||[]).length;
-        for(let i=0; i<opens-closes; i++) fixed += '}';
-        fiche = JSON.parse(fixed);
-      } catch(e2) {
-        throw new Error("Réponse inattendue. Réessaie.");
-      }
-    }
-    showResult(fiche);
-  } catch (err) {
-    showError(err.message);
-  } finally {
-    loadingZone.classList.remove('active');
-    analyzeBtn.disabled = false;
+      loadingSub.textContent = "Essai " + model.split("/")[1].split(":")[0] + "…";
+      const resp = await fetch(PROXY, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "user", content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: `data:${imageMime};base64,${imageB64}` } }
+          ]}],
+          max_tokens: 800,
+          temperature: 0.2
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) { lastErr = data.error?.message || "Erreur " + resp.status; continue; }
+      raw = data.choices?.[0]?.message?.content || "";
+      if (raw) break;
+    } catch(e) { lastErr = e.message; }
   }
+
+  loading.classList.remove("show");
+  analyzeBtn.disabled = false;
+
+  if (!raw) { showError(lastErr || "Aucun modèle disponible, réessaie."); return; }
+
+  // Parse JSON robustly
+  raw = raw.replace(/```json/g,"").replace(/```/g,"").trim();
+  const m = raw.match(/\{[\s\S]*\}/);
+  if (m) raw = m[0];
+  let fiche;
+  try { fiche = JSON.parse(raw); }
+  catch {
+    // Try fixing truncated JSON
+    try {
+      let fixed = raw;
+      const o = (fixed.match(/\{/g)||[]).length, c = (fixed.match(/\}/g)||[]).length;
+      for(let i=0;i<o-c;i++) fixed += "}";
+      fiche = JSON.parse(fixed);
+    } catch { showError("Réponse inattendue, réessaie."); return; }
+  }
+  showResult(fiche);
 }
 
-// ── RENDER RESULT ──
 function showResult(f) {
   hideAll();
-  resultZone.classList.add('active');
+  const statusHTML = (f.statut||[]).map(s => `
+    <div class="pill"><div class="dot ${s.couleur==="amber"?"amber":s.couleur==="rouge"?"red":""}"></div>${esc(s.label)}</div>`).join("");
+  const tipsHTML = (f.conseils||[]).map((c,i) => `
+    <li><div class="tip-n">${i+1}</div><span>${esc(c)}</span></li>`).join("");
 
-  const statusHTML = (f.statut || []).map(s => `
-    <div class="status-pill">
-      <div class="dot ${s.couleur === 'amber' ? 'amber' : s.couleur === 'rouge' ? 'red' : ''}"></div>
-      ${esc(s.label)}
-    </div>`).join('');
-
-  const conseilsHTML = (f.conseils || []).map((c, i) => `
-    <li>
-      <div class="tip-bullet">${i+1}</div>
-      <span>${esc(c)}</span>
-    </li>`).join('');
-
-  resultZone.innerHTML = `
+  result.innerHTML = `
     <div class="result-header">
-      <div class="result-emoji">${f.emoji || '🔍'}</div>
-      <div class="result-title-block">
-        <div class="result-category">${esc(f.categorie || '')}</div>
-        <div class="result-name">${esc(f.nom || 'Analyse')}</div>
-        ${f.nom_latin ? `<div class="result-latin">${esc(f.nom_latin)}</div>` : ''}
+      <div class="result-emoji">${f.emoji||"🔍"}</div>
+      <div>
+        <div class="result-cat">${esc(f.categorie||"")}</div>
+        <div class="result-name">${esc(f.nom||"")}</div>
+        ${f.nom_latin?`<div class="result-latin">${esc(f.nom_latin)}</div>`:""}
       </div>
     </div>
-
-    ${statusHTML ? `<div class="status-bar">${statusHTML}</div>` : ''}
-
-    <div class="section">
-      <div class="section-label"><span>📖</span> Description</div>
-      <div class="section-text">${esc(f.description || '')}</div>
-    </div>
-
-    <div class="section">
-      <div class="section-label"><span>🔬</span> Ce que je vois sur la photo</div>
-      <div class="section-text">${esc(f.analyse || '')}</div>
-    </div>
-
-    ${conseilsHTML ? `
-    <div class="section">
-      <div class="section-label"><span>💡</span> Conseils pratiques</div>
-      <ul class="tips-list">${conseilsHTML}</ul>
-    </div>` : ''}
-
-    ${f.le_saviez_vous ? `
-    <div class="section">
-      <div class="section-label"><span>🌟</span> Le saviez-vous ?</div>
-      <div class="section-text">${esc(f.le_saviez_vous)}</div>
-    </div>` : ''}
-
-    ${f.recette_ou_usage ? `
-    <div class="recipe-section">
-      <div class="recipe-label"><span>🍽</span> Recette & Usage</div>
-      <div class="section-text">${esc(f.recette_ou_usage)}</div>
-    </div>` : ''}
-
-    <button class="btn-reset" id="resetBtn">📸 Analyser une nouvelle photo</button>
+    ${statusHTML?`<div class="pills">${statusHTML}</div>`:""}
+    <div class="card"><div class="card-label"><span>📖</span> Description</div><div class="card-text">${esc(f.description||"")}</div></div>
+    <div class="card"><div class="card-label"><span>🔬</span> Ce que je vois</div><div class="card-text">${esc(f.analyse||"")}</div></div>
+    ${tipsHTML?`<div class="card"><div class="card-label"><span>💡</span> Conseils</div><ul class="tips">${tipsHTML}</ul></div>`:""}
+    ${f.le_saviez_vous?`<div class="card"><div class="card-label"><span>🌟</span> Le saviez-vous ?</div><div class="card-text">${esc(f.le_saviez_vous)}</div></div>`:""}
+    ${f.recette_ou_usage?`<div class="recipe-card"><div class="recipe-label"><span>🍽</span> Recette & Usage</div><div class="card-text">${esc(f.recette_ou_usage)}</div></div>`:""}
   `;
-
-  document.getElementById('resetBtn').addEventListener('click', resetAll);
-  resultZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  result.classList.add("show");
+  newBtn.style.display = "block";
+  result.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function showError(msg) {
   hideAll();
-  errorZone.classList.add('active');
   errorText.textContent = msg;
+  error.classList.add("show");
 }
 
 function hideAll() {
-  loadingZone.classList.remove('active');
-  resultZone.classList.remove('active');
-  errorZone.classList.remove('active');
+  loading.classList.remove("show");
+  result.classList.remove("show");
+  error.classList.remove("show");
+  newBtn.style.display = "none";
 }
 
 function resetAll() {
-  currentImageBase64 = '';
-  fileInput.value = '';
-  captureZone.innerHTML = `<div class="capture-icon">📷</div><div class="capture-title">Prends ou importe une photo</div><div class="capture-sub">Plante, légume, fruit, animal, objet…<br>Je l'analyse entièrement</div>`;
-  captureZone.classList.remove('has-image');
-  actionsBar.style.display = 'none';
+  imageB64 = ""; fileInput.value = "";
+  captureZone.innerHTML = `<div class="capture-icon">📷</div><div class="capture-title">Prends ou importe une photo</div><div class="capture-sub">Plante, animal, objet, aliment, monument…<br>J'analyse tout !</div>`;
+  captureZone.classList.remove("has-image");
+  actions.classList.remove("show");
   hideAll();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function esc(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/\n/g,'<br>');
+function esc(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/
+/g,"<br>");
 }
 </script>
 </body>
