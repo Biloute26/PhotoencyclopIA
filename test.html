@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="padding:20px;font-family:sans-serif;background:#111;color:white;">
+
+<h2>Test fichier</h2>
+
+<input type="file" id="f" accept="image/*">
+<p id="msg">Choisir une photo ci-dessus</p>
+<img id="img" style="max-width:100%;margin-top:10px;">
+
+<script>
+document.getElementById('f').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) { document.getElementById('msg').textContent = "Pas de fichier"; return; }
+  document.getElementById('msg').textContent = "Fichier: " + file.name + " (" + file.type + ")";
+  const url = URL.createObjectURL(file);
+  document.getElementById('img').src = url;
+});
+</script>
+</body>
+</html>
