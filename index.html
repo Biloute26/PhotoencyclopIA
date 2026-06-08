@@ -10,7 +10,7 @@ body { font-family: sans-serif; background: #0d1f0f; color: #f5f0e8; padding: 16
 h1 { font-size: 22px; color: #c8e6c9; margin-bottom: 20px; }
 h1 b { color: #4caf52; }
 #preview { width: 100%; border-radius: 12px; display: none; margin-bottom: 12px; }
-#pick { display: block; width: 100%; padding: 16px; background: #1a3a1d; border: 2px dashed #4caf52; border-radius: 12px; color: #4caf52; font-size: 16px; text-align: center; cursor: pointer; margin-bottom: 12px; }
+input[type=file] { display: block; width: 100%; padding: 16px; background: #1a3a1d; border: 2px dashed #4caf52; border-radius: 12px; color: #4caf52; font-size: 15px; margin-bottom: 12px; cursor: pointer; }
 #analyze { display: none; width: 100%; padding: 16px; background: #4caf52; border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
 #reset { display: none; width: 100%; padding: 14px; background: #1a3a1d; border: 1px solid #4caf52; border-radius: 12px; color: #4caf52; font-size: 15px; cursor: pointer; margin-bottom: 12px; }
 #status { font-size: 14px; color: #a8c5aa; margin-bottom: 12px; min-height: 20px; }
@@ -27,22 +27,17 @@ h1 b { color: #4caf52; }
 <body>
 
 <h1>Photo<b>encyclop</b>IA</h1>
-
 <img id="preview">
-
-<label id="pick" for="fileinput">📷 Choisir ou prendre une photo</label>
-<input type="file" id="fileinput" accept="image/*" style="display:none">
-
+<input type="file" id="fileinput" accept="image/*">
 <button id="analyze">🔍 Analyser</button>
 <button id="reset">📷 Nouvelle photo</button>
-
-<p id="status"></p>
+<p id="status">Choisis une photo ci-dessus</p>
 <div id="result"></div>
 
 <script>
 var b64 = '', mime = 'image/jpeg';
 
-document.getElementById('fileinput').addEventListener('change', function() {
+document.getElementById('fileinput').onchange = function() {
   var file = this.files[0];
   if (!file) return;
   mime = file.type || 'image/jpeg';
@@ -51,104 +46,63 @@ document.getElementById('fileinput').addEventListener('change', function() {
     b64 = e.target.result.split(',')[1];
     document.getElementById('preview').src = e.target.result;
     document.getElementById('preview').style.display = 'block';
-    document.getElementById('pick').style.display = 'none';
     document.getElementById('analyze').style.display = 'block';
-    document.getElementById('status').textContent = 'Photo prête !';
+    document.getElementById('status').textContent = 'Photo prête — appuie sur Analyser !';
     document.getElementById('result').style.display = 'none';
     document.getElementById('reset').style.display = 'none';
   };
   r.readAsDataURL(file);
-});
+};
 
-document.getElementById('analyze').addEventListener('click', function() {
+document.getElementById('analyze').onclick = function() {
   if (!b64) return;
-  document.getElementById('analyze').disabled = true;
+  this.disabled = true;
   document.getElementById('status').textContent = 'Analyse en cours…';
   document.getElementById('result').style.display = 'none';
-
-  var prompt = 'Analyse cette photo. Retourne UNIQUEMENT du JSON valide, rien d'autre.\n{"emoji":"🔍","categorie":"type","nom":"nom","nom_latin":"sci","description":"3 phrases","analyse":"3 phrases sur cette photo","conseils":["conseil 1","conseil 2","conseil 3"],"le_saviez_vous":"fait rare","recette_ou_usage":"usage pratique"}';
-
-  var models = [
-    'meta-llama/llama-4-maverick:free',
-    'qwen/qwen2.5-vl-32b-instruct:free',
-    'mistralai/mistral-small-3.1-24b-instruct:free'
-  ];
-
+  var prompt = 'Analyse cette photo. Retourne UNIQUEMENT du JSON valide, rien d\'autre.\n{"emoji":"🔍","categorie":"type","nom":"nom","nom_latin":"sci","description":"3 phrases","analyse":"3 phrases sur cette photo","conseils":["1","2","3"],"le_saviez_vous":"fait","recette_ou_usage":"usage"}';
+  var models = ['meta-llama/llama-4-maverick:free','qwen/qwen2.5-vl-32b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free'];
   function tryNext(i) {
-    if (i >= models.length) {
-      document.getElementById('status').textContent = 'Erreur : aucun modèle disponible.';
-      document.getElementById('analyze').disabled = false;
-      return;
-    }
-    document.getElementById('status').textContent = 'Essai ' + (i+1) + '/' + models.length + '…';
-    fetch('https://photoencyclopia-proxy.widehem-olivier.workers.dev', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: models[i],
-        messages: [{ role: 'user', content: [
-          { type: 'text', text: prompt },
-          { type: 'image_url', image_url: { url: 'data:' + mime + ';base64,' + b64 } }
-        ]}],
-        max_tokens: 700,
-        temperature: 0.1
-      })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var raw = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
+    if (i >= models.length) { document.getElementById('status').textContent = 'Aucun modèle dispo, réessaie.'; document.getElementById('analyze').disabled = false; return; }
+    document.getElementById('status').textContent = 'Modèle ' + (i+1) + '/' + models.length + '…';
+    fetch('https://photoencyclopia-proxy.widehem-olivier.workers.dev', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model: models[i], messages:[{role:'user',content:[{type:'text',text:prompt},{type:'image_url',image_url:{url:'data:'+mime+';base64,'+b64}}]}], max_tokens:700, temperature:0.1 }) })
+    .then(function(r){return r.json();}).then(function(d){
+      var raw = d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||'';
       if (!raw) { tryNext(i+1); return; }
       raw = raw.replace(/```json/g,'').replace(/```/g,'').trim();
-      var m = raw.match(/\{[\s\S]*\}/);
-      if (m) raw = m[0];
-      try {
-        var f = JSON.parse(raw);
-        showResult(f);
-      } catch(e) {
-        document.getElementById('status').textContent = 'Réponse inattendue, réessaie.';
-        document.getElementById('analyze').disabled = false;
-      }
-    })
-    .catch(function() { tryNext(i+1); });
+      var m = raw.match(/\{[\s\S]*\}/); if(m) raw=m[0];
+      try { showResult(JSON.parse(raw)); } catch(e) { document.getElementById('status').textContent='Réponse inattendue, réessaie.'; document.getElementById('analyze').disabled=false; }
+    }).catch(function(){ tryNext(i+1); });
   }
-
   tryNext(0);
-});
+};
 
 function showResult(f) {
   document.getElementById('status').textContent = '';
   document.getElementById('analyze').style.display = 'none';
   document.getElementById('reset').style.display = 'block';
-  var h = '<div style="font-size:48px;margin-bottom:8px">' + (f.emoji||'🔍') + '</div>';
-  h += '<div class="cat">' + e(f.categorie) + '</div>';
-  h += '<div class="name">' + e(f.nom) + '</div>';
-  if (f.nom_latin) h += '<div class="latin">' + e(f.nom_latin) + '</div>';
-  h += '<div class="card"><h3>📖 Description</h3><p>' + e(f.description) + '</p></div>';
-  h += '<div class="card"><h3>🔬 Ce que je vois</h3><p>' + e(f.analyse) + '</p></div>';
-  if (f.conseils && f.conseils.length) {
-    h += '<div class="card"><h3>💡 Conseils</h3><ul>';
-    f.conseils.forEach(function(c) { h += '<li>' + e(c) + '</li>'; });
-    h += '</ul></div>';
-  }
-  if (f.le_saviez_vous) h += '<div class="card"><h3>🌟 Le saviez-vous ?</h3><p>' + e(f.le_saviez_vous) + '</p></div>';
-  if (f.recette_ou_usage) h += '<div class="card"><h3>🍽 Recette & Usage</h3><p>' + e(f.recette_ou_usage) + '</p></div>';
-  document.getElementById('result').innerHTML = h;
-  document.getElementById('result').style.display = 'block';
-  document.getElementById('analyze').disabled = false;
+  var h = '<div style="font-size:48px;margin-bottom:8px">'+(f.emoji||'🔍')+'</div>';
+  h += '<div class="cat">'+e(f.categorie)+'</div><div class="name">'+e(f.nom)+'</div>';
+  if(f.nom_latin) h+='<div class="latin">'+e(f.nom_latin)+'</div>';
+  h += '<div class="card"><h3>📖 Description</h3><p>'+e(f.description)+'</p></div>';
+  h += '<div class="card"><h3>🔬 Ce que je vois</h3><p>'+e(f.analyse)+'</p></div>';
+  if(f.conseils&&f.conseils.length){h+='<div class="card"><h3>💡 Conseils</h3><ul>';f.conseils.forEach(function(c){h+='<li>'+e(c)+'</li>';});h+='</ul></div>';}
+  if(f.le_saviez_vous) h+='<div class="card"><h3>🌟 Le saviez-vous ?</h3><p>'+e(f.le_saviez_vous)+'</p></div>';
+  if(f.recette_ou_usage) h+='<div class="card"><h3>🍽 Recette & Usage</h3><p>'+e(f.recette_ou_usage)+'</p></div>';
+  document.getElementById('result').innerHTML=h;
+  document.getElementById('result').style.display='block';
+  document.getElementById('analyze').disabled=false;
 }
 
-document.getElementById('reset').addEventListener('click', function() {
-  b64 = '';
-  document.getElementById('fileinput').value = '';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('pick').style.display = 'block';
-  document.getElementById('analyze').style.display = 'none';
-  document.getElementById('reset').style.display = 'none';
-  document.getElementById('result').style.display = 'none';
-  document.getElementById('status').textContent = '';
-});
+document.getElementById('reset').onclick = function() {
+  b64=''; document.getElementById('fileinput').value='';
+  document.getElementById('preview').style.display='none';
+  document.getElementById('analyze').style.display='none';
+  document.getElementById('reset').style.display='none';
+  document.getElementById('result').style.display='none';
+  document.getElementById('status').textContent='Choisis une photo ci-dessus';
+};
 
-function e(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
 </script>
 </body>
 </html>
