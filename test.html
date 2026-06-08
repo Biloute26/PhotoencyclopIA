@@ -1,22 +1,38 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="padding:20px;font-family:sans-serif;background:#111;color:white;">
-
-<h2>Test fichier</h2>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="padding:20px;background:#111;color:white;font-family:sans-serif;">
+<h2>Test Samsung</h2>
 
 <input type="file" id="f" accept="image/*">
-<p id="msg">Choisir une photo ci-dessus</p>
-<img id="img" style="max-width:100%;margin-top:10px;">
+<br><br>
+<div id="msg">En attente...</div>
+<br>
+<img id="img" style="max-width:100%;">
 
 <script>
-document.getElementById('f').addEventListener('change', function() {
-  const file = this.files[0];
-  if (!file) { document.getElementById('msg').textContent = "Pas de fichier"; return; }
-  document.getElementById('msg').textContent = "Fichier: " + file.name + " (" + file.type + ")";
-  const url = URL.createObjectURL(file);
-  document.getElementById('img').src = url;
-});
+var input = document.getElementById('f');
+var msg = document.getElementById('msg');
+var img = document.getElementById('img');
+
+input.onchange = function() {
+  msg.textContent = 'files: ' + input.files.length;
+  if (!input.files[0]) { msg.textContent = 'Aucun fichier'; return; }
+  var file = input.files[0];
+  msg.textContent = 'Fichier OK: ' + file.name;
+  var reader = new FileReader();
+  reader.onloadend = function() {
+    msg.textContent = 'Reader OK, taille: ' + reader.result.length;
+    img.src = reader.result;
+  };
+  reader.onerror = function() {
+    msg.textContent = 'ERREUR reader: ' + reader.error;
+  };
+  reader.readAsDataURL(file);
+};
 </script>
 </body>
 </html>
