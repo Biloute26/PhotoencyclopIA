@@ -2,7 +2,805 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>PhotoencyclopIA4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1f0f">
+<title>PhotoencyclopIA</title>
+<link rel="manifest" href="#" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-dark: #0d1f0f;
+    --green-mid: #1a3a1d;
+    --green-accent: #2d6a31;
+    --green-light: #4caf52;
+    --green-pale: #c8e6c9;
+    --cream: #f5f0e8;
+    --amber: #e8a020;
+    --text-main: #f5f0e8;
+    --text-muted: #a8c5aa;
+    --text-dark: #1a2e1c;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--green-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 20px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--green-pale);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--green-light); }
+  .api-btn {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .api-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-main); }
+  .api-btn.configured { color: var(--green-light); border-color: var(--green-light); }
+
+  /* ── API MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--green-mid);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: var(--cream);
+  }
+  .modal p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .modal a { color: var(--green-light); }
+  .modal input {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 14px;
+    outline: none;
+  }
+  .modal input:focus { border-color: var(--green-light); }
+  .modal-btns { display: flex; gap: 10px; }
+  .btn-save {
+    flex: 1;
+    background: var(--green-accent);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: var(--green-light); }
+  .btn-cancel {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── MAIN ZONE ── */
+  main { padding: 24px 20px; }
+
+  /* ── CAPTURE ZONE ── */
+  .capture-zone {
+    background: var(--green-mid);
+    border: 2px dashed rgba(76,175,82,0.35);
+    border-radius: 24px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .capture-zone:hover, .capture-zone.dragover {
+    border-color: var(--green-light);
+    background: rgba(45,106,49,0.3);
+  }
+  .capture-zone.has-image {
+    padding: 0;
+    border-style: solid;
+    border-color: var(--green-accent);
+  }
+  .capture-icon {
+    width: 72px;
+    height: 72px;
+    background: rgba(76,175,82,0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 32px;
+  }
+  .capture-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .capture-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .preview-img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 22px;
+    display: block;
+  }
+  .change-photo {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  input[type=file] { display: none; }
+
+  /* ── ACTION BUTTONS ── */
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .btn-analyze {
+    flex: 1;
+    background: linear-gradient(135deg, var(--green-accent), var(--green-light));
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 16px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-analyze:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-analyze:active { transform: scale(0.98); }
+  .btn-analyze:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .btn-camera {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    color: var(--text-main);
+    font-size: 22px;
+    padding: 16px 20px;
+    cursor: pointer;
+  }
+
+  /* ── LOADING ── */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .loading.active { display: block; }
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(76,175,82,0.2);
+    border-top-color: var(--green-light);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+  .loading-sub { font-size: 13px; color: var(--text-muted); }
+
+  /* ── RESULT CARD ── */
+  .result {
+    display: none;
+    margin-top: 24px;
+  }
+  .result.active { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .result-emoji {
+    font-size: 44px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .result-title-block {}
+  .result-category {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--green-light);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .result-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+  .result-latin {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    background: var(--green-mid);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--green-light);
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label span { font-size: 16px; }
+  .section-text {
+    font-size: 14px;
+    color: var(--cream);
+    line-height: 1.7;
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .status-pill {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green-light);
+  }
+  .status-pill .dot.amber { background: var(--amber); }
+  .status-pill .dot.red { background: #f44336; }
+
+  /* ── TIPS ── */
+  .tips-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tips-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--cream);
+    line-height: 1.6;
+  }
+  .tip-bullet {
+    width: 20px;
+    height: 20px;
+    background: rgba(76,175,82,0.2);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--green-light);
+    margin-top: 2px;
+  }
+
+  /* ── RECIPE ── */
+  .recipe-section {
+    background: linear-gradient(135deg, rgba(232,160,32,0.15), rgba(232,160,32,0.05));
+    border: 1px solid rgba(232,160,32,0.25);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .recipe-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--amber);
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── ERROR ── */
+  .error {
+    display: none;
+    background: rgba(244,67,54,0.1);
+    border: 1px solid rgba(244,67,54,0.3);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+  }
+  .error.active { display: block; }
+  .error-icon { font-size: 36px; margin-bottom: 10px; }
+  .error-text { font-size: 14px; color: #ff8a80; line-height: 1.6; }
+
+  /* ── RESET BTN ── */
+  .btn-reset {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { color: var(--cream); border-color: rgba(255,255,255,0.2); }
+
+  /* ── NO API WARNING ── */
+  .no-api-banner {
+    background: rgba(232,160,32,0.12);
+    border: 1px solid rgba(232,160,32,0.3);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--amber);
+    margin-bottom: 20px;
+    text-align: center;
+    cursor: pointer;
+    display: none;
+  }
+  .no-api-banner.visible { display: block; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+  }
+</style>
 </head>
-	<body><h2>OK, chargement en cours...</h2></body>
+<body>
+
+<!-- API MODAL -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h2>🔑 Clé API Gemini</h2>
+    <p>
+      Ta clé reste stockée localement sur ton appareil, jamais envoyée ailleurs.<br><br>
+      Obtiens-la gratuitement sur <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> → "Get API Key"
+    </p>
+    <input type="password" id="apiKeyInput" placeholder="sk-or-..." autocomplete="off" />
+    <div class="modal-btns">
+      <button class="btn-cancel" id="cancelModal">Annuler</button>
+      <button class="btn-save" id="saveApiKey">✓ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Photo<span>encyclop</span>IA</div>
+  <button class="api-btn" id="apiToggle">⚙ API Key</button>
+</header>
+
+<main>
+
+  <!-- NO API BANNER -->
+  <div class="no-api-banner visible" id="noApiBanner" onclick="openModal()">
+    ⚠ Configure ta clé API Gemini pour commencer →
+  </div>
+
+  <!-- CAPTURE ZONE -->
+  <div class="capture-zone" id="captureZone">
+    <div class="capture-icon">📷</div>
+    <div class="capture-title">Prends ou importe une photo</div>
+    <div class="capture-sub">Plante, légume, fruit, animal, objet…<br>Je l'analyse entièrement</div>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" capture="environment" />
+
+  <!-- ACTIONS -->
+  <div class="actions" id="actionsBar" style="display:none;">
+    <button class="btn-camera" id="retakeBtn" title="Nouvelle photo">🔄</button>
+    <button class="btn-analyze" id="analyzeBtn">
+      <span>🔍</span> Analyser la photo
+    </button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loadingZone">
+    <div class="spinner"></div>
+    <div class="loading-text">Analyse en cours…</div>
+    <div class="loading-sub">Gemini examine chaque détail</div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error" id="errorZone">
+    <div class="error-icon">😕</div>
+    <div class="error-text" id="errorText"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result" id="resultZone"></div>
+
+</main>
+
+<footer>PhotoencyclopIA — Propulsé par OpenRouter (gratuit)</footer>
+
+<script>
+const STORAGE_KEY = 'photoencyclo_api_key';
+let apiKey = localStorage.getItem(STORAGE_KEY) || '';
+let currentImageBase64 = '';
+let currentMime = 'image/jpeg';
+
+// ── UI REFS ──
+const captureZone = document.getElementById('captureZone');
+const fileInput = document.getElementById('fileInput');
+const actionsBar = document.getElementById('actionsBar');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const retakeBtn = document.getElementById('retakeBtn');
+const loadingZone = document.getElementById('loadingZone');
+const resultZone = document.getElementById('resultZone');
+const errorZone = document.getElementById('errorZone');
+const errorText = document.getElementById('errorText');
+const noApiBanner = document.getElementById('noApiBanner');
+const apiToggle = document.getElementById('apiToggle');
+const apiModal = document.getElementById('apiModal');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const saveApiKeyBtn = document.getElementById('saveApiKey');
+const cancelModal = document.getElementById('cancelModal');
+
+// ── INIT ──
+updateApiUI();
+
+function updateApiUI() {
+  if (apiKey) {
+    apiToggle.textContent = '✓ API OK';
+    apiToggle.classList.add('configured');
+    noApiBanner.classList.remove('visible');
+  } else {
+    apiToggle.textContent = '⚙ API Key';
+    apiToggle.classList.remove('configured');
+    noApiBanner.classList.add('visible');
+  }
+}
+
+// ── MODAL ──
+function openModal() {
+  apiKeyInput.value = apiKey ? '••••••••••••••••' : '';
+  apiModal.classList.add('open');
+}
+apiToggle.addEventListener('click', openModal);
+cancelModal.addEventListener('click', () => apiModal.classList.remove('open'));
+saveApiKeyBtn.addEventListener('click', () => {
+  const val = apiKeyInput.value.trim();
+  if (val && val !== '••••••••••••••••') {
+    apiKey = val;
+    localStorage.setItem(STORAGE_KEY, apiKey);
+  }
+  apiModal.classList.remove('open');
+  updateApiUI();
+});
+apiModal.addEventListener('click', e => { if (e.target === apiModal) apiModal.classList.remove('open'); });
+
+// ── PHOTO CAPTURE ──
+captureZone.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  currentMime = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    currentImageBase64 = ev.target.result.split(',')[1];
+    showPreview(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+});
+
+retakeBtn.addEventListener('click', () => {
+  fileInput.value = '';
+  fileInput.click();
+});
+
+function showPreview(src) {
+  captureZone.innerHTML = `<img class="preview-img" src="${src}" alt="Photo"><button class="change-photo" id="changePhotoBtn">Changer</button>`;
+  captureZone.classList.add('has-image');
+  document.getElementById('changePhotoBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+  actionsBar.style.display = 'flex';
+  hideAll();
+}
+
+// ── ANALYZE ──
+analyzeBtn.addEventListener('click', analyze);
+
+async function analyze() {
+  if (!apiKey) { openModal(); return; }
+  if (!currentImageBase64) return;
+
+  hideAll();
+  loadingZone.classList.add('active');
+  analyzeBtn.disabled = true;
+
+  const prompt = `Tu es une encyclopédie visuelle intelligente. Analyse cette image avec précision et retourne une fiche technique complète en JSON.
+
+Identifie ce que tu vois (plante, légume, fruit, fleur, animal, objet, nourriture, minéral, etc.) et adapte la fiche à ce que c'est.
+
+Retourne UNIQUEMENT ce JSON (sans markdown, sans backticks) :
+{
+  "emoji": "emoji représentatif",
+  "categorie": "catégorie courte (ex: Légume, Fruit, Animal, Plante, Objet...)",
+  "nom": "Nom commun",
+  "nom_latin": "Nom scientifique ou modèle/marque si objet (vide si inconnu)",
+  "statut": [
+    {"label": "état / info clé 1", "couleur": "vert|amber|rouge"},
+    {"label": "état / info clé 2", "couleur": "vert|amber|rouge"}
+  ],
+  "description": "Description générale précise et intéressante (3-4 phrases)",
+  "analyse": "Analyse détaillée de CE QU'ON VOIT sur la photo : état, maturité, santé, âge, particularités visibles (3-5 phrases)",
+  "conseils": [
+    "Conseil pratique 1",
+    "Conseil pratique 2",
+    "Conseil pratique 3",
+    "Conseil pratique 4"
+  ],
+  "le_saviez_vous": "Un fait surprenant ou peu connu sur ce sujet",
+  "recette_ou_usage": "Si comestible: une recette simple et délicieuse. Si animal: comment l'apprivoiser/soigner. Si objet: comment bien l'utiliser ou l'entretenir. Si plante: utilisation (médicinale, décorative...). Sois précis et pratique."
+}`;
+
+  const MODELS = [
+    'google/gemma-4-31b-it:free',
+    'meta-llama/llama-4-maverick:free',
+    'moonshotai/kimi-vl-a3b-thinking:free',
+    'mistralai/mistral-small-3.1-24b-instruct:free'
+  ];
+
+  async function tryModel(model) {
+    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://photoencyclopIA.app",
+        "X-Title": "PhotoencyclopIA"
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: [
+          { type: "text", text: prompt },
+          { type: "image_url", image_url: { url: `data:${currentMime};base64,${currentImageBase64}` } }
+        ]}],
+        max_tokens: 1500,
+        temperature: 0.4
+      })
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || "Erreur " + resp.status);
+    }
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content || "";
+  }
+
+  try {
+    let raw = ""; let lastErr = "";
+    for (const model of MODELS) {
+      try {
+        document.querySelector('.loading-sub').textContent = "Essai avec " + model.split('/')[1].split(':')[0] + "...";
+        raw = await tryModel(model);
+        if (raw) break;
+      } catch(e) { lastErr = e.message; }
+    }
+    if (!raw) throw new Error(lastErr || "Aucun modele disponible. Reessaie dans quelques instants.");
+    raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+    let fiche;
+    try { fiche = JSON.parse(raw); }
+    catch { throw new Error("Reponse inattendue. Reessaie avec une photo plus nette."); }
+    showResult(fiche);
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    loadingZone.classList.remove('active');
+    analyzeBtn.disabled = false;
+  }
+}
+
+// ── RENDER RESULT ──
+function showResult(f) {
+  hideAll();
+  resultZone.classList.add('active');
+
+  const statusHTML = (f.statut || []).map(s => `
+    <div class="status-pill">
+      <div class="dot ${s.couleur === 'amber' ? 'amber' : s.couleur === 'rouge' ? 'red' : ''}"></div>
+      ${esc(s.label)}
+    </div>`).join('');
+
+  const conseilsHTML = (f.conseils || []).map((c, i) => `
+    <li>
+      <div class="tip-bullet">${i+1}</div>
+      <span>${esc(c)}</span>
+    </li>`).join('');
+
+  resultZone.innerHTML = `
+    <div class="result-header">
+      <div class="result-emoji">${f.emoji || '🔍'}</div>
+      <div class="result-title-block">
+        <div class="result-category">${esc(f.categorie || '')}</div>
+        <div class="result-name">${esc(f.nom || 'Analyse')}</div>
+        ${f.nom_latin ? `<div class="result-latin">${esc(f.nom_latin)}</div>` : ''}
+      </div>
+    </div>
+
+    ${statusHTML ? `<div class="status-bar">${statusHTML}</div>` : ''}
+
+    <div class="section">
+      <div class="section-label"><span>📖</span> Description</div>
+      <div class="section-text">${esc(f.description || '')}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-label"><span>🔬</span> Ce que je vois sur la photo</div>
+      <div class="section-text">${esc(f.analyse || '')}</div>
+    </div>
+
+    ${conseilsHTML ? `
+    <div class="section">
+      <div class="section-label"><span>💡</span> Conseils pratiques</div>
+      <ul class="tips-list">${conseilsHTML}</ul>
+    </div>` : ''}
+
+    ${f.le_saviez_vous ? `
+    <div class="section">
+      <div class="section-label"><span>🌟</span> Le saviez-vous ?</div>
+      <div class="section-text">${esc(f.le_saviez_vous)}</div>
+    </div>` : ''}
+
+    ${f.recette_ou_usage ? `
+    <div class="recipe-section">
+      <div class="recipe-label"><span>🍽</span> Recette & Usage</div>
+      <div class="section-text">${esc(f.recette_ou_usage)}</div>
+    </div>` : ''}
+
+    <button class="btn-reset" id="resetBtn">📸 Analyser une nouvelle photo</button>
+  `;
+
+  document.getElementById('resetBtn').addEventListener('click', resetAll);
+  resultZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showError(msg) {
+  hideAll();
+  errorZone.classList.add('active');
+  errorText.textContent = msg;
+}
+
+function hideAll() {
+  loadingZone.classList.remove('active');
+  resultZone.classList.remove('active');
+  errorZone.classList.remove('active');
+}
+
+function resetAll() {
+  currentImageBase64 = '';
+  fileInput.value = '';
+  captureZone.innerHTML = `<div class="capture-icon">📷</div><div class="capture-title">Prends ou importe une photo</div><div class="capture-sub">Plante, légume, fruit, animal, objet…<br>Je l'analyse entièrement</div>`;
+  captureZone.classList.remove('has-image');
+  actionsBar.style.display = 'none';
+  hideAll();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/\n/g,'<br>');
+}
+</script>
+</body>
 </html>
