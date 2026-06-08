@@ -165,7 +165,7 @@ fileInput.addEventListener("change", function() {
     b64 = reader.result.split(",")[1];
     previewBox.innerHTML = '<img src="' + reader.result + '" style="width:100%;max-height:260px;object-fit:cover;border-radius:16px;">';
     document.querySelector('label[for=fileInput]').style.display = 'none';
-    btnRow.classList.add("show");
+    document.getElementById('btnRow').style.display = 'flex';
     hideAll();
   };
   setTimeout(function() { reader.readAsDataURL(file); }, 100);
