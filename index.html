@@ -678,6 +678,9 @@ Retourne UNIQUEMENT ce JSON (sans markdown, sans backticks) :
     const data = await resp.json();
     let raw = data.choices?.[0]?.message?.content || "";
     raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+    // Extract JSON object if wrapped in text
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) raw = jsonMatch[0];
     let fiche;
     try { fiche = JSON.parse(raw); }
     catch { throw new Error("Reponse inattendue. Reessaie avec une photo plus nette."); }
