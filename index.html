@@ -623,11 +623,8 @@ async function analyze() {
   loadingZone.classList.add('active');
   analyzeBtn.disabled = true;
 
-  const prompt = `Analyse cette image. Retourne UNIQUEMENT un JSON valide, sans texte avant ou après, sans backticks.
-
-Identifie ce que tu vois (plante, animal, objet, véhicule, nourriture, minéral, monument, œuvre d'art, etc.) et adapte ta réponse.
-
-{"emoji":"emoji","categorie":"type précis","nom":"nom commun","nom_latin":"nom sci. ou marque/modèle","statut":[{"label":"info clé 1","couleur":"vert"},{"label":"info clé 2","couleur":"amber"}],"description":"3-4 phrases sur ce que c'est","analyse":"3-4 phrases sur ce qu'on voit sur CETTE photo précisément","conseils":["conseil pratique 1","conseil pratique 2","conseil pratique 3","conseil pratique 4"],"le_saviez_vous":"fait surprenant et rare","recette_ou_usage":"adapté: recette si comestible, entretien si objet, comportement si animal, valeur/histoire si véhicule ou œuvre"}`;
+  const prompt = `Tu es une encyclopédie visuelle. Analyse la photo et retourne UNIQUEMENT ce JSON (rien d'autre, pas de texte) :
+{"emoji":"🔍","categorie":"type","nom":"nom","nom_latin":"sci/marque","statut":[{"label":"état","couleur":"vert"},{"label":"info","couleur":"amber"}],"description":"3 phrases sur ce que c'est","analyse":"3 phrases sur cette photo","conseils":["conseil 1","conseil 2","conseil 3"],"le_saviez_vous":"fait rare","recette_ou_usage":"usage pratique adapté"}`;
 
   const MODELS = [
     "meta-llama/llama-4-maverick:free",
@@ -668,11 +665,26 @@ Identifie ce que tu vois (plante, animal, objet, véhicule, nourriture, minéral
     }
     if (!raw) throw new Error(lastErr || "Aucun modèle disponible, réessaie.");
     raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+    // Extract first JSON object found anywhere in the response
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (jsonMatch) raw = jsonMatch[0];
+    // Fix common JSON issues
+    raw = raw.replace(/[ -]/g, ' ');
     let fiche;
-    try { fiche = JSON.parse(raw); }
-    catch { throw new Error("Réponse inattendue. Réessaie avec une photo plus nette."); }
+    try {
+      fiche = JSON.parse(raw);
+    } catch(e) {
+      // Try to fix truncated JSON by closing open brackets
+      try {
+        let fixed = raw;
+        const opens = (fixed.match(/\{/g)||[]).length;
+        const closes = (fixed.match(/\}/g)||[]).length;
+        for(let i=0; i<opens-closes; i++) fixed += '}';
+        fiche = JSON.parse(fixed);
+      } catch(e2) {
+        throw new Error("Réponse inattendue. Réessaie.");
+      }
+    }
     showResult(fiche);
   } catch (err) {
     showError(err.message);
