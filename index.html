@@ -2,176 +2,129 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d1f0f">
 <title>PhotoencyclopIA</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --green-dark: #0d1f0f; --green-mid: #1a3a1d; --green-accent: #2d6a31;
-  --green-light: #4caf52; --cream: #f5f0e8; --amber: #e8a020;
-  --text-muted: #a8c5aa;
-}
-body { font-family: "DM Sans", sans-serif; background: var(--green-dark); color: var(--cream); min-height: 100vh; }
-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.logo { font-family: "Playfair Display", serif; font-size: 20px; color: #c8e6c9; }
-.logo span { color: var(--green-light); }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0d1f0f; color: #f5f0e8; min-height: 100vh; max-width: 480px; margin: 0 auto; }
+header { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.logo { font-size: 22px; font-weight: 700; color: #c8e6c9; }
+.logo span { color: #4caf52; }
+.main { padding: 20px; }
 
-/* CAPTURE */
-.capture-wrap { padding: 20px; }
-.capture-zone {
-  background: var(--green-mid);
-  border: 2px dashed rgba(76,175,82,0.4);
-  border-radius: 20px;
-  min-height: 200px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center; padding: 30px 20px;
-  cursor: pointer; position: relative; overflow: hidden;
-  transition: border-color 0.2s;
+/* Zone preview */
+.preview-box {
+  background: #1a3a1d; border: 2px dashed rgba(76,175,82,0.4);
+  border-radius: 20px; min-height: 180px;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; padding: 24px;
+  margin-bottom: 14px; overflow: hidden; position: relative;
 }
-.capture-zone:hover { border-color: var(--green-light); }
-.capture-zone.has-image { padding: 0; border-style: solid; border-color: var(--green-accent); }
-.capture-icon { font-size: 48px; margin-bottom: 12px; }
-.capture-title { font-family: "Playfair Display", serif; font-size: 18px; margin-bottom: 6px; }
-.capture-sub { font-size: 13px; color: var(--text-muted); }
-.preview-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 18px; display: block; }
-.change-btn {
-  position: absolute; bottom: 10px; right: 10px;
-  background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 16px; padding: 5px 12px; font-size: 12px; cursor: pointer;
-}
+.preview-box img { width: 100%; max-height: 260px; object-fit: cover; border-radius: 16px; display: block; }
+.preview-icon { font-size: 52px; margin-bottom: 10px; }
+.preview-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+.preview-sub { font-size: 13px; color: #a8c5aa; }
 
-/* BUTTONS */
-.actions { display: none; padding: 0 20px 16px; gap: 10px; }
-.actions.show { display: flex; }
+/* Buttons */
+.btn-photo {
+  width: 100%; padding: 16px; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, #2d6a31, #4caf52);
+  color: white; font-size: 16px; font-weight: 600;
+  cursor: pointer; margin-bottom: 12px; display: flex;
+  align-items: center; justify-content: center; gap: 10px;
+}
+.btn-row { display: none; gap: 10px; margin-bottom: 12px; }
+.btn-row.show { display: flex; }
+.btn-change {
+  flex: 1; padding: 14px; border-radius: 14px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+  color: #f5f0e8; font-size: 14px; cursor: pointer;
+}
 .btn-analyze {
-  flex: 1; background: linear-gradient(135deg, var(--green-accent), var(--green-light));
-  border: none; border-radius: 14px; color: white;
-  font-size: 16px; font-weight: 500; padding: 15px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: "DM Sans", sans-serif;
+  flex: 2; padding: 14px; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, #2d6a31, #4caf52);
+  color: white; font-size: 15px; font-weight: 600; cursor: pointer;
 }
 .btn-analyze:disabled { opacity: 0.5; }
-.btn-retry {
-  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 14px; color: var(--cream); font-size: 20px;
-  padding: 15px 18px; cursor: pointer;
-}
 
-/* LOADING */
-.loading { display: none; padding: 40px 20px; text-align: center; }
+/* Loading */
+.loading { display: none; text-align: center; padding: 30px; }
 .loading.show { display: block; }
 .spinner {
-  width: 44px; height: 44px; border: 3px solid rgba(76,175,82,0.2);
-  border-top-color: var(--green-light); border-radius: 50%;
-  animation: spin 0.8s linear infinite; margin: 0 auto 14px;
+  width: 40px; height: 40px; border: 3px solid rgba(76,175,82,0.2);
+  border-top-color: #4caf52; border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { font-family: "Playfair Display", serif; font-size: 17px; }
-.loading-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
-/* RESULT */
-.result { display: none; padding: 0 20px 20px; }
+/* Result */
+.result { display: none; }
 .result.show { display: block; }
-.result-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
-.result-emoji { font-size: 42px; flex-shrink: 0; }
-.result-cat { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green-light); font-weight: 500; }
-.result-name { font-family: "Playfair Display", serif; font-size: 24px; line-height: 1.2; }
-.result-latin { font-size: 13px; color: var(--text-muted); font-style: italic; }
+.r-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.r-emoji { font-size: 44px; }
+.r-cat { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #4caf52; font-weight: 600; }
+.r-name { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.r-latin { font-size: 13px; color: #a8c5aa; font-style: italic; }
 .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.pill {
-  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px; padding: 5px 12px; font-size: 12px;
-  display: flex; align-items: center; gap: 5px;
-}
-.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-light); flex-shrink: 0; }
-.dot.amber { background: var(--amber); }
-.dot.red { background: #f44336; }
-.card {
-  background: var(--green-mid); border-radius: 14px; padding: 16px;
-  margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.06);
-}
-.card-label {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
-  color: var(--green-light); font-weight: 500; margin-bottom: 10px;
-  display: flex; align-items: center; gap: 6px;
-}
+.pill { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 5px 12px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot.g { background: #4caf52; } .dot.a { background: #e8a020; } .dot.r { background: #f44336; }
+.card { background: #1a3a1d; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #4caf52; font-weight: 600; margin-bottom: 10px; }
 .card-text { font-size: 14px; line-height: 1.7; }
-.tips { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.tips li { display: flex; gap: 8px; font-size: 14px; line-height: 1.6; }
-.tip-n {
-  width: 20px; height: 20px; background: rgba(76,175,82,0.2);
-  border-radius: 50%; flex-shrink: 0; display: flex;
-  align-items: center; justify-content: center; font-size: 10px;
-  color: var(--green-light); margin-top: 2px;
-}
-.recipe-card {
-  background: linear-gradient(135deg, rgba(232,160,32,0.12), rgba(232,160,32,0.04));
-  border: 1px solid rgba(232,160,32,0.2); border-radius: 14px;
-  padding: 16px; margin-bottom: 12px;
-}
-.recipe-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--amber); font-weight: 500; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.tips { list-style: none; }
+.tips li { display: flex; gap: 8px; font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
+.tip-n { width: 20px; height: 20px; background: rgba(76,175,82,0.2); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #4caf52; margin-top: 2px; }
+.recipe-card { background: linear-gradient(135deg, rgba(232,160,32,0.1), rgba(232,160,32,0.03)); border: 1px solid rgba(232,160,32,0.2); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.recipe-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #e8a020; font-weight: 600; margin-bottom: 10px; }
 
-/* ERROR */
-.error { display: none; padding: 20px; text-align: center; }
+/* Error */
+.error { display: none; }
 .error.show { display: block; }
-.error-box { background: rgba(244,67,54,0.1); border: 1px solid rgba(244,67,54,0.3); border-radius: 14px; padding: 20px; }
-.error-text { font-size: 14px; color: #ff8a80; line-height: 1.6; margin-top: 8px; }
-
-.btn-new {
-  width: calc(100% - 40px); margin: 0 20px 20px;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 14px; color: var(--text-muted); font-size: 14px;
-  padding: 13px; cursor: pointer; font-family: "DM Sans", sans-serif;
-}
-footer { text-align: center; padding: 16px; font-size: 11px; color: rgba(255,255,255,0.2); }
+.error-box { background: rgba(244,67,54,0.1); border: 1px solid rgba(244,67,54,0.3); border-radius: 14px; padding: 20px; text-align: center; }
+.error-text { font-size: 14px; color: #ff8a80; margin-top: 8px; line-height: 1.6; }
+.btn-new { width: 100%; padding: 14px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a8c5aa; font-size: 14px; cursor: pointer; margin-top: 4px; }
+footer { text-align: center; padding: 20px; font-size: 11px; color: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
+<header><div class="logo">Photo<span>encyclop</span>IA</div></header>
+<div class="main">
 
-<header>
-  <div class="logo">Photo<span>encyclop</span>IA</div>
-</header>
-
-<div class="capture-wrap">
-  <div class="capture-zone" id="captureZone">
-    <div class="capture-icon">📷</div>
-    <div class="capture-title">Prends ou importe une photo</div>
-    <div class="capture-sub">Plante, animal, objet, aliment, monument…<br>J'analyse tout !</div>
+  <div class="preview-box" id="previewBox">
+    <div class="preview-icon">📷</div>
+    <div class="preview-title">Prends ou importe une photo</div>
+    <div class="preview-sub">Plante, animal, objet, aliment, monument…</div>
   </div>
-  <div style="margin-top:12px;">
-    <label for="fileInput" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#2d6a31,#4caf52);border:none;border-radius:14px;color:white;font-size:16px;font-weight:500;padding:15px;cursor:pointer;font-family:DM Sans,sans-serif;width:100%;">
-      📷 Prendre ou choisir une photo
-    </label>
+
+  <button class="btn-photo" id="btnPhoto">📷 Choisir / Prendre une photo</button>
+  <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+  <div class="btn-row" id="btnRow">
+    <button class="btn-change" id="btnChange">🔄 Changer</button>
+    <button class="btn-analyze" id="btnAnalyze">🔍 Analyser</button>
   </div>
-</div>
-<input type="file" id="fileInput" accept="image/*" style="display:none">
 
-<div class="actions" id="actions">
-  <button class="btn-retry" id="retryBtn" title="Autre photo">🔄</button>
-  <button class="btn-analyze" id="analyzeBtn">🔍 Analyser</button>
-</div>
-
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <div class="loading-text">Analyse en cours…</div>
-  <div class="loading-sub" id="loadingSub">Identification de l'objet</div>
-</div>
-
-<div class="error" id="error">
-  <div class="error-box">
-    <div style="font-size:32px">😕</div>
-    <div class="error-text" id="errorText"></div>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="font-size:16px;font-weight:600;">Analyse en cours…</p>
+    <p style="font-size:13px;color:#a8c5aa;margin-top:4px;" id="loadingSub">Identification…</p>
   </div>
+
+  <div class="error" id="error">
+    <div class="error-box">
+      <div style="font-size:32px">😕</div>
+      <div class="error-text" id="errorText"></div>
+    </div>
+  </div>
+
+  <div class="result" id="result"></div>
+  <button class="btn-new" id="btnNew" style="display:none">📸 Nouvelle photo</button>
+
 </div>
-
-<div class="result" id="result"></div>
-<button class="btn-new" id="newBtn" style="display:none">📸 Analyser une nouvelle photo</button>
-
-<footer>PhotoencyclopIA — Propulsé par OpenRouter</footer>
+<footer>PhotoencyclopIA — OpenRouter</footer>
 
 <script>
 const PROXY = "https://photoencyclopia-proxy.widehem-olivier.workers.dev";
@@ -182,101 +135,89 @@ const MODELS = [
   "google/gemma-3-27b-it:free"
 ];
 
-let imageB64 = "", imageMime = "image/jpeg";
+let b64 = "", mime = "image/jpeg";
 
-const captureZone = document.getElementById("captureZone");
+const previewBox = document.getElementById("previewBox");
 const fileInput = document.getElementById("fileInput");
-const actions = document.getElementById("actions");
-const analyzeBtn = document.getElementById("analyzeBtn");
-const retryBtn = document.getElementById("retryBtn");
+const btnPhoto = document.getElementById("btnPhoto");
+const btnRow = document.getElementById("btnRow");
+const btnChange = document.getElementById("btnChange");
+const btnAnalyze = document.getElementById("btnAnalyze");
 const loading = document.getElementById("loading");
 const loadingSub = document.getElementById("loadingSub");
 const result = document.getElementById("result");
 const error = document.getElementById("error");
 const errorText = document.getElementById("errorText");
-const newBtn = document.getElementById("newBtn");
+const btnNew = document.getElementById("btnNew");
 
-// PHOTO CAPTURE
-captureZone.addEventListener("click", () => fileInput.click());
-retryBtn.addEventListener("click", () => fileInput.click());
-newBtn.addEventListener("click", resetAll);
+btnPhoto.addEventListener("click", function() { fileInput.click(); });
+btnChange.addEventListener("click", function() { fileInput.click(); });
+btnNew.addEventListener("click", reset);
 
-fileInput.addEventListener("change", e => {
-  const file = e.target.files[0];
+fileInput.addEventListener("change", function() {
+  const file = this.files[0];
   if (!file) return;
-  imageMime = file.type || "image/jpeg";
+  mime = file.type || "image/jpeg";
   const reader = new FileReader();
-  reader.onload = ev => {
-    imageB64 = ev.target.result.split(",")[1];
-    showPreview(ev.target.result);
+  reader.onload = function(e) {
+    b64 = e.target.result.split(",")[1];
+    previewBox.innerHTML = "<img src=\"" + e.target.result + "\">";
+    btnPhoto.style.display = "none";
+    btnRow.classList.add("show");
+    hideAll();
   };
   reader.readAsDataURL(file);
 });
 
-function showPreview(src) {
-  captureZone.innerHTML = `<img class="preview-img" src="${src}"><button class="change-btn" id="changeBtn">Changer</button>`;
-  captureZone.classList.add("has-image");
-  document.getElementById("changeBtn").addEventListener("click", e => {
-    e.stopPropagation(); fileInput.click();
-  });
-  actions.classList.add("show");
-  hideAll();
-}
-
-// ANALYZE
-analyzeBtn.addEventListener("click", analyze);
+btnAnalyze.addEventListener("click", analyze);
 
 async function analyze() {
-  if (!imageB64) return;
+  if (!b64) return;
   hideAll();
   loading.classList.add("show");
-  analyzeBtn.disabled = true;
+  btnAnalyze.disabled = true;
 
-  const prompt = `Tu es une encyclopédie visuelle. Analyse cette photo et retourne UNIQUEMENT un objet JSON valide, sans texte avant ou après.
-{"emoji":"emoji","categorie":"type précis","nom":"nom commun","nom_latin":"nom sci ou marque","statut":[{"label":"info 1","couleur":"vert"},{"label":"info 2","couleur":"amber"}],"description":"3 phrases précises","analyse":"3 phrases sur cette photo","conseils":["conseil 1","conseil 2","conseil 3"],"le_saviez_vous":"fait rare","recette_ou_usage":"usage pratique adapté"}`;
+  const prompt = "Analyse cette photo. Retourne UNIQUEMENT ce JSON sans rien d\'autre:\n{\"emoji\":\"X\",\"categorie\":\"type\",\"nom\":\"nom\",\"nom_latin\":\"sci\",\"statut\":[{\"label\":\"info\",\"couleur\":\"vert\"}],\"description\":\"3 phrases\",\"analyse\":\"3 phrases sur cette photo\",\"conseils\":[\"1\",\"2\",\"3\"],\"le_saviez_vous\":\"fait\",\"recette_ou_usage\":\"usage\"}";
 
   let raw = "", lastErr = "";
-  for (const model of MODELS) {
+  for (let i = 0; i < MODELS.length; i++) {
     try {
-      loadingSub.textContent = "Essai " + model.split("/")[1].split(":")[0] + "…";
+      loadingSub.textContent = "Modèle " + (i+1) + "/" + MODELS.length + "…";
       const resp = await fetch(PROXY, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model,
+          model: MODELS[i],
           messages: [{ role: "user", content: [
             { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: `data:${imageMime};base64,${imageB64}` } }
+            { type: "image_url", image_url: { url: "data:" + mime + ";base64," + b64 } }
           ]}],
-          max_tokens: 800,
-          temperature: 0.2
+          max_tokens: 700,
+          temperature: 0.1
         })
       });
       const data = await resp.json();
-      if (!resp.ok) { lastErr = data.error?.message || "Erreur " + resp.status; continue; }
-      raw = data.choices?.[0]?.message?.content || "";
+      if (!resp.ok) { lastErr = (data.error && data.error.message) || ("Erreur " + resp.status); continue; }
+      raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || "";
       if (raw) break;
     } catch(e) { lastErr = e.message; }
   }
 
   loading.classList.remove("show");
-  analyzeBtn.disabled = false;
+  btnAnalyze.disabled = false;
 
   if (!raw) { showError(lastErr || "Aucun modèle disponible, réessaie."); return; }
 
-  // Parse JSON robustly
   raw = raw.replace(/```json/g,"").replace(/```/g,"").trim();
   const m = raw.match(/\{[\s\S]*\}/);
   if (m) raw = m[0];
   let fiche;
   try { fiche = JSON.parse(raw); }
   catch {
-    // Try fixing truncated JSON
     try {
-      let fixed = raw;
-      const o = (fixed.match(/\{/g)||[]).length, c = (fixed.match(/\}/g)||[]).length;
-      for(let i=0;i<o-c;i++) fixed += "}";
-      fiche = JSON.parse(fixed);
+      const o = (raw.match(/\{/g)||[]).length, c = (raw.match(/\}/g)||[]).length;
+      for(let i=0;i<o-c;i++) raw += "}";
+      fiche = JSON.parse(raw);
     } catch { showError("Réponse inattendue, réessaie."); return; }
   }
   showResult(fiche);
@@ -284,59 +225,43 @@ async function analyze() {
 
 function showResult(f) {
   hideAll();
-  const statusHTML = (f.statut||[]).map(s => `
-    <div class="pill"><div class="dot ${s.couleur==="amber"?"amber":s.couleur==="rouge"?"red":""}"></div>${esc(s.label)}</div>`).join("");
-  const tipsHTML = (f.conseils||[]).map((c,i) => `
-    <li><div class="tip-n">${i+1}</div><span>${esc(c)}</span></li>`).join("");
+  const pills = (f.statut||[]).map(function(s) {
+    const dc = s.couleur === "amber" ? "a" : s.couleur === "rouge" ? "r" : "g";
+    return "<div class=\"pill\"><div class=\"dot " + dc + "\"></div>" + esc(s.label) + "</div>";
+  }).join("");
+  const tips = (f.conseils||[]).map(function(c,i) {
+    return "<li><div class=\"tip-n\">" + (i+1) + "</div><span>" + esc(c) + "</span></li>";
+  }).join("");
 
-  result.innerHTML = `
-    <div class="result-header">
-      <div class="result-emoji">${f.emoji||"🔍"}</div>
-      <div>
-        <div class="result-cat">${esc(f.categorie||"")}</div>
-        <div class="result-name">${esc(f.nom||"")}</div>
-        ${f.nom_latin?`<div class="result-latin">${esc(f.nom_latin)}</div>`:""}
-      </div>
-    </div>
-    ${statusHTML?`<div class="pills">${statusHTML}</div>`:""}
-    <div class="card"><div class="card-label"><span>📖</span> Description</div><div class="card-text">${esc(f.description||"")}</div></div>
-    <div class="card"><div class="card-label"><span>🔬</span> Ce que je vois</div><div class="card-text">${esc(f.analyse||"")}</div></div>
-    ${tipsHTML?`<div class="card"><div class="card-label"><span>💡</span> Conseils</div><ul class="tips">${tipsHTML}</ul></div>`:""}
-    ${f.le_saviez_vous?`<div class="card"><div class="card-label"><span>🌟</span> Le saviez-vous ?</div><div class="card-text">${esc(f.le_saviez_vous)}</div></div>`:""}
-    ${f.recette_ou_usage?`<div class="recipe-card"><div class="recipe-label"><span>🍽</span> Recette & Usage</div><div class="card-text">${esc(f.recette_ou_usage)}</div></div>`:""}
-  `;
+  result.innerHTML =
+    "<div class=\"r-header\"><div class=\"r-emoji\">" + (f.emoji||"🔍") + "</div><div>" +
+    "<div class=\"r-cat\">" + esc(f.categorie||"") + "</div>" +
+    "<div class=\"r-name\">" + esc(f.nom||"") + "</div>" +
+    (f.nom_latin ? "<div class=\"r-latin\">" + esc(f.nom_latin) + "</div>" : "") +
+    "</div></div>" +
+    (pills ? "<div class=\"pills\">" + pills + "</div>" : "") +
+    "<div class=\"card\"><div class=\"card-label\">📖 Description</div><div class=\"card-text\">" + esc(f.description||"") + "</div></div>" +
+    "<div class=\"card\"><div class=\"card-label\">🔬 Ce que je vois</div><div class=\"card-text\">" + esc(f.analyse||"") + "</div></div>" +
+    (tips ? "<div class=\"card\"><div class=\"card-label\">💡 Conseils</div><ul class=\"tips\">" + tips + "</ul></div>" : "") +
+    (f.le_saviez_vous ? "<div class=\"card\"><div class=\"card-label\">🌟 Le saviez-vous ?</div><div class=\"card-text\">" + esc(f.le_saviez_vous) + "</div></div>" : "") +
+    (f.recette_ou_usage ? "<div class=\"recipe-card\"><div class=\"recipe-label\">🍽 Recette & Usage</div><div class=\"card-text\">" + esc(f.recette_ou_usage) + "</div></div>" : "");
+
   result.classList.add("show");
-  newBtn.style.display = "block";
-  result.scrollIntoView({ behavior: "smooth", block: "start" });
+  btnNew.style.display = "block";
 }
 
-function showError(msg) {
+function showError(msg) { hideAll(); errorText.textContent = msg; error.classList.add("show"); }
+function hideAll() { loading.classList.remove("show"); result.classList.remove("show"); error.classList.remove("show"); btnNew.style.display = "none"; }
+function reset() {
+  b64 = ""; fileInput.value = "";
+  previewBox.innerHTML = "<div class=\"preview-icon\">📷</div><div class=\"preview-title\">Prends ou importe une photo</div><div class=\"preview-sub\">Plante, animal, objet, aliment, monument…</div>";
+  btnPhoto.style.display = "flex";
+  btnRow.classList.remove("show");
   hideAll();
-  errorText.textContent = msg;
-  error.classList.add("show");
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-
-function hideAll() {
-  loading.classList.remove("show");
-  result.classList.remove("show");
-  error.classList.remove("show");
-  newBtn.style.display = "none";
-}
-
-function resetAll() {
-  imageB64 = ""; fileInput.value = "";
-  captureZone.innerHTML = `<div class="capture-icon">📷</div><div class="capture-title">Prends ou importe une photo</div><div class="capture-sub">Plante, animal, objet, aliment, monument…<br>J'analyse tout !</div>`;
-  captureZone.classList.remove("has-image");
-  actions.classList.remove("show");
-  hideAll();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function esc(s) {
-  if (!s) return "";
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/
-/g,"<br>");
-}
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/
+/g,"<br>"); }
 </script>
 </body>
 </html>
